@@ -55,4 +55,19 @@ public abstract class AValueSerializer implements ValueSerializer {
 	
 	protected abstract <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
 			throws StreamCorruptedException, NotSerializableException;
+	
+	protected void writeArr(Object out, byte[] arr) {
+		if (out instanceof ByteBuffer) writeArr((ByteBuffer) out, arr);
+	}
+	
+	protected void writeArr(ByteBuffer out, byte[] arr) {
+		out.putInt(arr.length);
+		out.put(arr);
+	}
+	
+	protected void writeArr(StringBuffer out, byte[] arr) {
+		out.append(arr.length);
+		out.append(':');
+		out.append(new String(arr));
+	}
 }

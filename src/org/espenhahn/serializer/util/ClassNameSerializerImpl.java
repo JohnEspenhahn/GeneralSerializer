@@ -40,7 +40,7 @@ public class ClassNameSerializerImpl implements ClassNameSerializer {
 			throw new IllegalArgumentException("Expected buffer, got " + in);
 	}
 	
-	public String readClassName(StringBuffer in) {
+	public String readClassName(StringBuffer in) {		
 		// TODO
 		throw new UnsupportedOperationException();
 	}

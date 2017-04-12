@@ -20,10 +20,12 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 
 	@Override
 	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
-		// TODO check for enum, array, bean, list-pattern
+		// TODO check for bean, list-pattern
 		
-		// Is visited?
-		if (visitedObjs.isVisited(obj)) {
+		
+		if (obj == null) { // Is null?
+			ValueSerializerRegistry.getNullSerializer().objectToBuffer(out, obj, visitedObjs);
+		} else if (visitedObjs.isVisited(obj)) { // Is visited?
 			// Handle visited
 			VisitedRefSerializer vrSerializer = ValueSerializerRegistry.getVisitedRefSerializer();
 			
@@ -35,6 +37,10 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 			if (valueSerializer != null) {
 				// Handle atomic
 				valueSerializer.objectToBuffer(out, obj, visitedObjs);
+			} else if (obj.getClass().isEnum()) {
+				ValueSerializerRegistry.getEnumSerializer().objectToBuffer(out, obj, visitedObjs);
+			} else if (obj.getClass().isArray()) {
+				ValueSerializerRegistry.getArraySerializer().objectToBuffer(out, obj, visitedObjs);
 			} else {
 				// TODO for each component, handle component
 				throw new NotSerializableException();
@@ -48,14 +54,13 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 		VisitedRefSerializer vrSerializer = ValueSerializerRegistry.getVisitedRefSerializer();
 		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();
 		
-		// TODO check for enum, array, bean, list-pattern
+		// TODO check for bean, list-pattern
 		
 		String className = cns.readClassName(in);
+		
 		// Is visited?
 		if (className.equals(vrSerializer.getClassName())) {
-			VisitedObjectRef ref = vrSerializer.objectFromBuffer(in, VisitedObjectRef.class, retrievedObjs);
-			
-			return retrievedObjs.get(ref);				
+			return retrievedObjs.get(vrSerializer.objectFromBuffer(in, VisitedObjectRef.class, retrievedObjs));				
 		} else {
 			Class<?> clazz;
 			try {
@@ -67,6 +72,10 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 			ValueSerializer valueSerializer = ValueSerializerRegistry.getValueSerializer(clazz);
 			if (valueSerializer != null) { // Is atomic?
 				return valueSerializer.objectFromBuffer(in, clazz, retrievedObjs);
+			} else if (clazz.isEnum()) {
+				return ValueSerializerRegistry.getEnumSerializer().objectFromBuffer(in, clazz, retrievedObjs);
+			} else if (clazz.isArray()) {
+				return ValueSerializerRegistry.getArraySerializer().objectFromBuffer(in, clazz, retrievedObjs);
 			} else {
 				// TODO for each component, handle component
 				throw new NotSerializableException();
