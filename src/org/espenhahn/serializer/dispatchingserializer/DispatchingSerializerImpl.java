@@ -32,7 +32,12 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 			if (valueSerializer != null) {
 				valueSerializer.objectToBuffer(out, obj, visitedObjs);
 			} else {
-				throw new NotSerializableException();
+				ValueSerializer typeSerializer = ValueSerializerRegistry.getTypeIndependentSerializer(clazz);
+				if (typeSerializer != null) {
+					typeSerializer.objectToBuffer(out, obj, visitedObjs);
+				} else {
+					throw new NotSerializableException();
+				}
 			}
 		}
 	}
@@ -57,7 +62,12 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 			if (valueSerializer != null) {
 				return valueSerializer.objectFromBuffer(in, clazz, retrievedObjs);
 			} else {
-				throw new StreamCorruptedException();
+				ValueSerializer typeSerializer = ValueSerializerRegistry.getTypeIndependentSerializer(clazz);
+				if (typeSerializer != null) {
+					return typeSerializer.objectFromBuffer(in, clazz, retrievedObjs);
+				} else {
+					throw new StreamCorruptedException();
+				}
 			}
 		}		
 	}

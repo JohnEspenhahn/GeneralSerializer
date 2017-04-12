@@ -13,6 +13,7 @@ import org.espenhahn.serializer.dispatchingserializer.ArraySerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializer;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.EnumSerializerImpl;
+import org.espenhahn.serializer.dispatchingserializer.ListSerializerImpl;
 import org.espenhahn.serializer.specialvalueserializers.NullSerializerImpl;
 import org.espenhahn.serializer.specialvalueserializers.SpecialValueSerializer;
 import org.espenhahn.serializer.specialvalueserializers.VisitedRefSerializerImpl;
@@ -32,6 +33,7 @@ import org.espenhahn.serializer.valueserializers.ValueSerializer;
 
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
+import util.misc.RemoteReflectionUtility;
 
 @Tags({ Comp533Tags.SERIALIZER_REGISTRY })
 public class ValueSerializerRegistry {
@@ -47,6 +49,7 @@ public class ValueSerializerRegistry {
 	
 	private static ValueSerializer arraySerializer = new ArraySerializerImpl();
 	private static ValueSerializer enumSerializer = new EnumSerializerImpl();
+	private static ValueSerializer listSerializer = new ListSerializerImpl();
 	
 	public static void initDefault() {
 		registerValueSerializer(Hashtable.class, new MapSerializerImpl());
@@ -74,8 +77,11 @@ public class ValueSerializerRegistry {
 	public static void registerDeserializingClass(Class<?> foundClass, Class<?> targetClass) {
 		if (!foundClass.isAssignableFrom(targetClass)) throw new IllegalArgumentException();
 		
+		ValueSerializer serializer = getValueSerializer(targetClass);
+		if (serializer == null) throw new IllegalArgumentException();
+		
 		deserializingClass.put(foundClass, targetClass);
-		registerValueSerializer(foundClass, getValueSerializer(targetClass));
+		registerValueSerializer(foundClass, serializer);
 	}
 	
 	public static Object getDeserializedInstance(Class<?> foundClass) throws InstantiationException, IllegalAccessException {
@@ -89,9 +95,13 @@ public class ValueSerializerRegistry {
 	public static ValueSerializer getValueSerializer(Class<?> clazz) {
 		ValueSerializer valueSerializer = serializers.getOrDefault(clazz, null);
 		if (valueSerializer != null) return valueSerializer;
-		
+		else return null;
+	}
+	
+	public static ValueSerializer getTypeIndependentSerializer(Class<?> clazz) {
 		if (clazz.isEnum()) return getEnumSerializer();
 		else if (clazz.isArray()) return getArraySerializer();
+		else if (RemoteReflectionUtility.isList(clazz)) return getListSerializer();
 		else return null;
 		
 		// TODO check for bean, list-pattern
@@ -164,6 +174,15 @@ public class ValueSerializerRegistry {
 	public static void registerArraySerializer(ValueSerializer w) {
 		if (w == null) throw new IllegalArgumentException();
 		arraySerializer = w;
+	}
+	
+	public static ValueSerializer getListSerializer() { 
+		return listSerializer;
+	}
+	
+	public static void registerListSerializer(ValueSerializer w) {
+		if (w == null) throw new IllegalArgumentException();
+		listSerializer = w;
 	}
 	
 }
