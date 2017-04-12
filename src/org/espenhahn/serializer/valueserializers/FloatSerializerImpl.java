@@ -18,7 +18,7 @@ public class FloatSerializerImpl extends AValueSerializer {
 
 	@Override
 	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs) {
-		out.putDouble((float) obj);
+		out.putFloat((float) obj);
 	}
 
 	@Override
