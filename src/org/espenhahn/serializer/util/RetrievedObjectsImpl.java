@@ -17,8 +17,8 @@ public class RetrievedObjectsImpl implements RetrievedObjects {
 	}
 
 	@Override
-	public Object get(VisitedObjectRef ref) throws IndexOutOfBoundsException {
-		return objects.get(ref.getOffset());
+	public Object get(int offset) throws IndexOutOfBoundsException {
+		return objects.get(offset);
 	}
 	
 	public void reset() {

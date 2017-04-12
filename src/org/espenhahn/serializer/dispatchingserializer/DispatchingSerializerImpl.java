@@ -4,10 +4,10 @@ import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 
 import org.espenhahn.serializer.ValueSerializerRegistry;
+import org.espenhahn.serializer.specialvalueserializers.SpecialValueSerializer;
 import org.espenhahn.serializer.util.ClassNameSerializer;
 import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
-import org.espenhahn.serializer.valueserializers.SpecialValueSerializer;
 import org.espenhahn.serializer.valueserializers.ValueSerializer;
 
 import util.annotations.Comp533Tags;
@@ -44,7 +44,7 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 		String className = cns.readClassName(in);
 		SpecialValueSerializer specialSerialier = ValueSerializerRegistry.getSpecialValueSerializer(className);
 		if (specialSerialier != null) {
-			return specialSerialier.objectFromBuffer(in, null, retrievedObjs);
+			return specialSerialier.objectFromBuffer(in, Object.class, retrievedObjs);
 		} else {
 			Class<?> clazz;
 			try {

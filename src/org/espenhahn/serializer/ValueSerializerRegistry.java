@@ -13,6 +13,9 @@ import org.espenhahn.serializer.dispatchingserializer.ArraySerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializer;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.EnumSerializerImpl;
+import org.espenhahn.serializer.specialvalueserializers.NullSerializerImpl;
+import org.espenhahn.serializer.specialvalueserializers.SpecialValueSerializer;
+import org.espenhahn.serializer.specialvalueserializers.VisitedRefSerializerImpl;
 import org.espenhahn.serializer.util.ClassNameSerializer;
 import org.espenhahn.serializer.util.ClassNameSerializerImpl;
 import org.espenhahn.serializer.util.VisitedObjects;
@@ -23,12 +26,9 @@ import org.espenhahn.serializer.valueserializers.FloatSerializerImpl;
 import org.espenhahn.serializer.valueserializers.IntegerSerializerImpl;
 import org.espenhahn.serializer.valueserializers.LongSerializerImpl;
 import org.espenhahn.serializer.valueserializers.MapSerializerImpl;
-import org.espenhahn.serializer.valueserializers.NullSerializerImpl;
 import org.espenhahn.serializer.valueserializers.ShortSerializerImpl;
-import org.espenhahn.serializer.valueserializers.SpecialValueSerializer;
 import org.espenhahn.serializer.valueserializers.StringSerializerImpl;
 import org.espenhahn.serializer.valueserializers.ValueSerializer;
-import org.espenhahn.serializer.valueserializers.VisitedRefSerializerImpl;
 
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
@@ -72,7 +72,7 @@ public class ValueSerializerRegistry {
 	}
 	
 	public static void registerDeserializingClass(Class<?> foundClass, Class<?> targetClass) {
-		if (!targetClass.isAssignableFrom(foundClass)) throw new IllegalArgumentException();
+		if (!foundClass.isAssignableFrom(targetClass)) throw new IllegalArgumentException();
 		
 		deserializingClass.put(foundClass, targetClass);
 		registerValueSerializer(foundClass, getValueSerializer(targetClass));

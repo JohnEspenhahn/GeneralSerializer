@@ -33,8 +33,9 @@ public class StringSerializerImpl extends AValueSerializer {
 		String str = (String) obj;
 		
 		try {
-			out.putInt(str.length());
-			out.put(str.getBytes(ENCODING));
+			byte[] bytes = str.getBytes(ENCODING);
+			out.putInt(bytes.length);
+			out.put(bytes);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}

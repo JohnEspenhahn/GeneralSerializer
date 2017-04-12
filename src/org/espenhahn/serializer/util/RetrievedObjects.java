@@ -8,12 +8,6 @@ public interface RetrievedObjects {
 	 */
 	void save(Object obj);
 	
-	/**
-	 * Get an object at an already visited index
-	 * @param ref The index to lookup the object in
-	 * @return The object
-	 * @throws IndexOutOfBoundsException If the object at the given index is not visited yet
-	 */
-	Object get(VisitedObjectRef ref) throws IndexOutOfBoundsException;
+	Object get(int offset) throws IndexOutOfBoundsException;
 	
 }

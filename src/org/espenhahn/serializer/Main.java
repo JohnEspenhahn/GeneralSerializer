@@ -24,8 +24,11 @@ public class Main {
 			System.out.println(new String(content));
 			
 			bb.flip();
-			Object deserialized = s.objectFromInputBuffer(bb);
+			Object[] deserialized = (Object[]) s.objectFromInputBuffer(bb);
 			System.out.println(deserialized);
+			System.out.println(deserialized[0]);
+			System.out.println(deserialized[1]);
+			System.out.println(deserialized[2]);
 		} catch (NotSerializableException e) {
 			e.printStackTrace();
 		} catch (StreamCorruptedException e) {

@@ -1,4 +1,4 @@
-package org.espenhahn.serializer.valueserializers;
+package org.espenhahn.serializer.specialvalueserializers;
 
 import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
@@ -7,6 +7,7 @@ import org.espenhahn.serializer.ValueSerializerRegistry;
 import org.espenhahn.serializer.util.ClassNameSerializer;
 import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
+import org.espenhahn.serializer.valueserializers.AValueSerializer;
 
 public class NullSerializerImpl extends AValueSerializer implements SpecialValueSerializer {
 	

@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 public class ClassNameSerializerImpl implements ClassNameSerializer {
+	private static final String ENCODING = "UTF8";
+	
 	public void writeClassName(Object out, String className) {
 		if (out instanceof StringBuffer)
 			writeClassName((StringBuffer) out, className);
@@ -20,7 +22,7 @@ public class ClassNameSerializerImpl implements ClassNameSerializer {
 	
 	public void writeClassName(ByteBuffer out, String className) {
 		try {			
-			byte[] classNameBuff = className.getBytes("UTF8");
+			byte[] classNameBuff = className.getBytes(ENCODING);
 			if (classNameBuff.length > Short.MAX_VALUE) 
 				throw new IllegalArgumentException("Classname longer than " + Short.MAX_VALUE);
 			
@@ -49,6 +51,11 @@ public class ClassNameSerializerImpl implements ClassNameSerializer {
 		int lng = in.getShort();
 		byte[] className = new byte[lng];
 		in.get(className);
-		return new String(className);
+		try {
+			return new String(className, ENCODING);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Encoding not supported"); 
+		}
 	}
 }
