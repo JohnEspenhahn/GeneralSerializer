@@ -12,8 +12,13 @@ public class Main {
 		ValueSerializerRegistry.initDefault();
 		Serializer s = new BinarySerializerImpl();
 		
+		Object[] arr = new Object[3];
+		arr[0] = 1;
+		arr[1] = "test";
+		arr[2] = arr;
+		
 		try {
-			ByteBuffer bb = s.outputBufferFromObject(1);
+			ByteBuffer bb = s.outputBufferFromObject(arr);
 			byte[] content = new byte[bb.remaining()];
 			bb.get(content);
 			System.out.println(new String(content));

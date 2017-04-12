@@ -1,6 +1,6 @@
 package org.espenhahn.serializer.valueserializers;
 
-public interface VisitedRefSerializer extends ValueSerializer {
+public interface SpecialValueSerializer extends ValueSerializer {
 
 	String getClassName();
 	

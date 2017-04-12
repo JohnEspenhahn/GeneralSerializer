@@ -9,7 +9,7 @@ import util.annotations.Comp533Tags;
 import util.annotations.Tags;
 
 @Tags({ Comp533Tags.VALUE_SERIALIZER })
-public class BoolSerializerImpl extends AValueSerializer {
+public class BooleanSerializerImpl extends AValueSerializer {
 
 	@Override
 	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs) {

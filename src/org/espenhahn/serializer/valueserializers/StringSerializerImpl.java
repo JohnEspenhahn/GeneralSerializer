@@ -42,7 +42,7 @@ public class StringSerializerImpl extends AValueSerializer {
 
 	@Override
 	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+			throws StreamCorruptedException {
 		if (!clazz.isAssignableFrom(String.class)) throw new IllegalArgumentException("Expected String, got " + clazz);
 		
 		throw new UnsupportedOperationException();
@@ -51,7 +51,7 @@ public class StringSerializerImpl extends AValueSerializer {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+			throws StreamCorruptedException {
 		
 		if (!clazz.isAssignableFrom(String.class)) throw new IllegalArgumentException("Expected String, got " + clazz);
 		

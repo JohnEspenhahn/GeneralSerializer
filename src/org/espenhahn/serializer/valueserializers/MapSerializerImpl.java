@@ -54,7 +54,7 @@ public class MapSerializerImpl extends AValueSerializer {
 
 	@Override
 	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+			throws StreamCorruptedException {
 		if (!clazz.isAssignableFrom(Collection.class)) throw new IllegalArgumentException("Expected Map, got " + clazz);
 		
 		try {
@@ -71,12 +71,12 @@ public class MapSerializerImpl extends AValueSerializer {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {		
+			throws StreamCorruptedException {		
 		if (!clazz.isAssignableFrom(Map.class)) throw new IllegalArgumentException("Expected Map, got " + clazz);
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		try {
-			T t = clazz.newInstance();
+			T t = (T) ValueSerializerRegistry.getDeserializedInstance(clazz);
 			retrievedObjs.save(t);
 			
 			Map<Object,Object> map = (Map<Object,Object>) t;

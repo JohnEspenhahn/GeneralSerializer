@@ -50,8 +50,7 @@ public class CollectionSerializerImpl extends AValueSerializer {
 	}
 
 	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		if (!clazz.isAssignableFrom(Collection.class)) throw new IllegalArgumentException("Expected Collection, got " + clazz);
 		
 		try {
@@ -70,14 +69,12 @@ public class CollectionSerializerImpl extends AValueSerializer {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
-		
+	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		if (!clazz.isAssignableFrom(Collection.class)) throw new IllegalArgumentException("Expected Collection, got " + clazz);
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		try {
-			T t = clazz.newInstance();
+			T t = (T) ValueSerializerRegistry.getDeserializedInstance(clazz);
 			retrievedObjs.save(t);
 			
 			int length = in.getInt();

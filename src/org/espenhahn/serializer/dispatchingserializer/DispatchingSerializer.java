@@ -12,10 +12,8 @@ import util.annotations.Tags;
 @Tags({ Comp533Tags.DISPATCHING_SERIALIZER })
 public interface DispatchingSerializer {
 
-	void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs)
-			 throws NotSerializableException;
+	void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException;
 	
-	Object objectFromBuffer(Object in, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException;
+	Object objectFromBuffer(Object in, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
 	
 }

@@ -14,7 +14,6 @@ public interface ValueSerializer {
 
 	void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException;
 	
-	<T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException;
+	<T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
 	
 }

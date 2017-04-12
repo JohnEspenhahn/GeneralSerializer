@@ -35,8 +35,7 @@ public abstract class AValueSerializer implements ValueSerializer {
 			throws NotSerializableException;
 
 	@SuppressWarnings("unchecked")
-	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		Object obj;
 		ExtensibleBufferDeserializationInitiated.newCase(this, "", in, clazz);
 		if (in instanceof StringBuffer) {
@@ -50,11 +49,9 @@ public abstract class AValueSerializer implements ValueSerializer {
 		return (T) obj;
 	}
 	
-	protected abstract <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException;
+	protected abstract <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
 	
-	protected abstract <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException;
+	protected abstract <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
 	
 	protected void writeArr(Object out, byte[] arr) {
 		if (out instanceof ByteBuffer) writeArr((ByteBuffer) out, arr);

@@ -1,7 +1,5 @@
 package org.espenhahn.serializer.valueserializers;
 
-import java.io.NotSerializableException;
-import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
 
 import org.espenhahn.serializer.ValueSerializerRegistry;
@@ -11,7 +9,7 @@ import org.espenhahn.serializer.util.VisitedObjectRef;
 import org.espenhahn.serializer.util.VisitedObjectRefImpl;
 import org.espenhahn.serializer.util.VisitedObjects;
 
-public class VisitedRefSerializerImpl extends AValueSerializer implements VisitedRefSerializer {
+public class VisitedRefSerializerImpl extends AValueSerializer implements SpecialValueSerializer {
 	
 	@Override
 	public String getClassName() {
@@ -19,38 +17,36 @@ public class VisitedRefSerializerImpl extends AValueSerializer implements Visite
 	}
 	
 	@Override
-	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
-		if (!(obj instanceof VisitedObjectRef)) throw new IllegalArgumentException("Expected VisitedObjectRef, got " + obj);
-		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();
+	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs) {
 		
+		int idx = visitedObjs.getIndex(obj);
+		if (idx == -1) throw new IllegalArgumentException("Not actually visited");
+		
+		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();		
 		cns.writeClassName(out, getClassName());
-		out.append(((VisitedObjectRef) obj).getOffset());
+		out.append(idx);
 	}
 
 	@Override
-	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
-		if (!(obj instanceof VisitedObjectRef)) throw new IllegalArgumentException("Expected VisitedObjectRef, got " + obj);
-		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();
+	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs) {
 		
+		int idx = visitedObjs.getIndex(obj);
+		if (idx == -1) throw new IllegalArgumentException("Not actually visited");
+		
+		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();
 		cns.writeClassName(out, getClassName());
-		out.putInt(((VisitedObjectRef) obj).getOffset());
+		out.putInt(idx);
 	}
 
 	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs) {
 		// TODO
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs)
-			throws StreamCorruptedException, NotSerializableException {
-		if (!clazz.isAssignableFrom(VisitedObjectRef.class)) throw new IllegalArgumentException("Expected VisitedObjectRef, got " + clazz);
-		
+	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs) {		
 		// Class name will be read in DispatchingSerializer
 		VisitedObjectRef obj = new VisitedObjectRefImpl();
 		obj.setOffset(in.getInt());

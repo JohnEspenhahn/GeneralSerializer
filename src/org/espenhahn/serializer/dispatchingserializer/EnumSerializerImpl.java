@@ -1,6 +1,5 @@
 package org.espenhahn.serializer.dispatchingserializer;
 
-import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -14,7 +13,7 @@ import util.annotations.Tags;
 
 @Tags({ Comp533Tags.ENUM_SERIALIZER })
 public class EnumSerializerImpl extends AValueSerializer {
-	private static final String ENCODING = "UTF8";
+	private static final String ENCODING = "UTF16";
 
 	@Override
 	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs) {
@@ -41,7 +40,7 @@ public class EnumSerializerImpl extends AValueSerializer {
 
 	@Override
 	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+			throws StreamCorruptedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -49,7 +48,7 @@ public class EnumSerializerImpl extends AValueSerializer {
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+			throws StreamCorruptedException {
 		if (!clazz.isEnum()) throw new IllegalArgumentException("Expected Enum, got " + clazz);
 		
 		int lng = in.getInt();

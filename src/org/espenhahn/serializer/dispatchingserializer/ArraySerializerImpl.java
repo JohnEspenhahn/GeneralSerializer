@@ -48,7 +48,7 @@ public class ArraySerializerImpl extends AValueSerializer {
 
 	@Override
 	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
+			throws StreamCorruptedException {
 		if (!clazz.isArray()) throw new IllegalArgumentException("Expected Array, got " + clazz);
 		
 		// TODO
@@ -58,10 +58,8 @@ public class ArraySerializerImpl extends AValueSerializer {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException, NotSerializableException {
-		if (!clazz.isArray()) throw new IllegalArgumentException("Expected Array, got " + clazz);
-		
+	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
+		if (!clazz.isArray()) throw new IllegalArgumentException("Expected Array, got " + clazz);		
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		int length = in.getInt();
