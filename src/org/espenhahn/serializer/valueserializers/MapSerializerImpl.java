@@ -3,7 +3,6 @@ package org.espenhahn.serializer.valueserializers;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -55,7 +54,7 @@ public class MapSerializerImpl extends AValueSerializer {
 	@Override
 	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
 			throws StreamCorruptedException {
-		if (!clazz.isAssignableFrom(Collection.class)) throw new IllegalArgumentException("Expected Map, got " + clazz);
+		if (!Map.class.isAssignableFrom(clazz)) throw new IllegalArgumentException("Expected Map, got " + clazz);
 		
 		try {
 			Object obj = clazz.newInstance();
@@ -72,7 +71,7 @@ public class MapSerializerImpl extends AValueSerializer {
 	@SuppressWarnings("unchecked")
 	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
 			throws StreamCorruptedException {		
-		if (!clazz.isAssignableFrom(Map.class)) throw new IllegalArgumentException("Expected Map, got " + clazz);
+		if (!Map.class.isAssignableFrom(clazz)) throw new IllegalArgumentException("Expected Map, got " + clazz);
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		try {

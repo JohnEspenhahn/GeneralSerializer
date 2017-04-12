@@ -1,7 +1,6 @@
 package org.espenhahn.serializer;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -10,6 +9,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.espenhahn.serializer.dispatchingserializer.ArraySerializerImpl;
+import org.espenhahn.serializer.dispatchingserializer.BeanSerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializer;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.EnumSerializerImpl;
@@ -50,6 +50,7 @@ public class ValueSerializerRegistry {
 	private static ValueSerializer arraySerializer = new ArraySerializerImpl();
 	private static ValueSerializer enumSerializer = new EnumSerializerImpl();
 	private static ValueSerializer listSerializer = new ListSerializerImpl();
+	private static ValueSerializer beanSerializer = new BeanSerializerImpl();
 	
 	public static void initDefault() {
 		registerValueSerializer(Hashtable.class, new MapSerializerImpl());
@@ -69,7 +70,6 @@ public class ValueSerializerRegistry {
 		registerValueSerializer(String.class, new StringSerializerImpl());
 		
 		// Specify instance to create for interfaces
-		registerDeserializingClass(Collection.class, ArrayList.class);
 		registerDeserializingClass(List.class, ArrayList.class);
 		registerDeserializingClass(Map.class, HashMap.class);
 	}
@@ -102,9 +102,7 @@ public class ValueSerializerRegistry {
 		if (clazz.isEnum()) return getEnumSerializer();
 		else if (clazz.isArray()) return getArraySerializer();
 		else if (RemoteReflectionUtility.isList(clazz)) return getListSerializer();
-		else return null;
-		
-		// TODO check for bean, list-pattern
+		else return getBeanSerializer();
 	}
 	
 	public static SpecialValueSerializer getSpecialValueSerializer(Object obj, VisitedObjects visitedObjs) {
@@ -183,6 +181,15 @@ public class ValueSerializerRegistry {
 	public static void registerListSerializer(ValueSerializer w) {
 		if (w == null) throw new IllegalArgumentException();
 		listSerializer = w;
+	}
+	
+	public static ValueSerializer getBeanSerializer() { 
+		return beanSerializer;
+	}
+	
+	public static void registerBeanSerializer(ValueSerializer w) {
+		if (w == null) throw new IllegalArgumentException();
+		beanSerializer = w;
 	}
 	
 }

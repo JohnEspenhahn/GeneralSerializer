@@ -33,9 +33,6 @@ public class BeanSerializerImpl extends AValueSerializer {
 	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
 			throws NotSerializableException {
 		if (!(obj instanceof Serializable)) throw new NotSerializableException();
-		
-		visitedObjs.visit(obj);
-		out.putInt(RemoteReflectionUtility.listSize(obj));
 		emitBody(out, obj, visitedObjs);
 	}
 	
