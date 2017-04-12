@@ -2,8 +2,12 @@ package org.espenhahn.serializer.test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.espenhahn.serializer.BinarySerializerImpl;
 import org.espenhahn.serializer.ValueSerializerRegistry;
@@ -86,9 +90,38 @@ public class ValueSerializersTest {
 	@Test
 	public void testArrayList() {
 		List<Object> a = new ArrayList<Object>();
-		assertSavesEquals(a);		
-		a.add(new TestObject("test1"));
 		assertSavesEquals(a);
+		Object obj = new TestObject("test1");
+		a.add(obj);
+		assertSavesEquals(a);
+		a.add(obj);
+		assertSavesEquals(a);
+		a.add(null);
+		assertSavesEquals(a);
+		a.add(null);
+		assertSavesEquals(a);
+		a.add(obj);
+		assertSavesEquals(a);
+	}
+	
+	@Test
+	public void testHashMap() {
+		Map<Object, Object> a = new HashMap<Object, Object>();
+		assertSavesEquals(a);
+		a.put("test", 1);
+		assertSavesEquals(a);
+		a.put(1, "test");
+		assertSavesEquals(a);
+		a.put(1, null);
+		assertSavesEquals(a);
+	}
+	
+	@Test
+	public void testArray() {
+		assertArraySavesEquals(new Object[] { 1, 2, 3, 4 });
+		
+		Object obj = new TestObject("test1");
+		assertArraySavesEquals(new Object[] { obj, 1, obj, null, obj, "test" });
 	}
 	
 	Object apply(Object obj) {
@@ -104,6 +137,19 @@ public class ValueSerializersTest {
 	void assertSavesEquals(Object obj) {
 		Object out = apply(obj);
 		Assert.assertEquals(out, obj);
+	}
+	
+	void assertArraySavesEquals(Object[] obj) {
+		Object[] out = (Object[]) apply(obj);
+		Iterator i1 = Arrays.asList(obj).iterator();
+		Iterator i2 = Arrays.asList(out).iterator();
+		
+		while (i1.hasNext() && i2.hasNext()) {
+			Assert.assertEquals(i1.next(), i2.next());
+		}
+		
+		if (i1.hasNext() || i2.hasNext())
+			Assert.fail();
 	}
 
 }
