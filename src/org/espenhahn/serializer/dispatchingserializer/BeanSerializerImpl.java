@@ -8,35 +8,28 @@ import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.ByteBuffer;
 
 import org.espenhahn.serializer.ValueSerializerRegistry;
 import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
-import org.espenhahn.serializer.valueserializers.AValueSerializer;
+import org.espenhahn.serializer.valueserializers.ValueSerializer;
 
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
 import util.misc.RemoteReflectionUtility;
 
 @Tags({ Comp533Tags.BEAN_SERIALIZER })
-public class BeanSerializerImpl extends AValueSerializer {
+public class BeanSerializerImpl implements ValueSerializer {
 
 	@Override
-	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
-		if (!(obj instanceof Serializable)) throw new NotSerializableException();
-		emitBody(out, obj, visitedObjs);
-	}
-
-	@Override
-	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
-		if (!(obj instanceof Serializable)) throw new NotSerializableException();
-		emitBody(out, obj, visitedObjs);
+	public boolean isTerminal() {
+		return false;
 	}
 	
-	private void emitBody(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {		
+	@Override
+	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
+		if (!(obj instanceof Serializable)) throw new NotSerializableException();
+		
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		try {
@@ -50,11 +43,19 @@ public class BeanSerializerImpl extends AValueSerializer {
 				} else if (RemoteReflectionUtility.isTransient(d.getReadMethod())) {
 					continue; // Transient
 				} else {
-					// Class<?> type = d.getReadMethod().getReturnType();
 					try {
 						// Get property value
 						Object propVal = d.getReadMethod().invoke(obj);
-						dispatcher.objectToBuffer(out, propVal, visitedObjs);
+						
+						// Terminal values can be serialized without class
+						ValueSerializer vs = null;
+						if (propVal != null)
+							vs = ValueSerializerRegistry.getValueSerializer(propVal.getClass());
+						
+						if (vs != null && vs.isTerminal())
+							vs.objectToBuffer(out, propVal, visitedObjs);
+						else
+							dispatcher.objectToBuffer(out, propVal, visitedObjs);
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						e.printStackTrace();
 					}
@@ -66,18 +67,8 @@ public class BeanSerializerImpl extends AValueSerializer {
 	}
 
 	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException {
-		if (!RemoteReflectionUtility.isList(clazz)) throw new IllegalArgumentException("Expected List, got " + clazz);
-		
-		// TODO
-		throw new UnsupportedOperationException();
-		
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
+	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		try {
@@ -93,7 +84,14 @@ public class BeanSerializerImpl extends AValueSerializer {
 					continue; // Transient
 				} else {
 					try {
-						d.getWriteMethod().invoke(obj, dispatcher.objectFromBuffer(in, retrievedObjs));
+						Class<?> type = d.getPropertyType();
+						
+						// Terminal values can be deserialized without reading class
+						ValueSerializer vs = ValueSerializerRegistry.getValueSerializer(type);
+						if (vs != null && vs.isTerminal())
+							d.getWriteMethod().invoke(obj, vs.objectFromBuffer(in, type, retrievedObjs));
+						else
+							d.getWriteMethod().invoke(obj, dispatcher.objectFromBuffer(in, retrievedObjs));
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						e.printStackTrace();
 					}

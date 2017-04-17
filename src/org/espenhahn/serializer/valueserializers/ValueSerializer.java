@@ -16,4 +16,6 @@ public interface ValueSerializer {
 	
 	<T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
 	
+	boolean isTerminal();
+	
 }

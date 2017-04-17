@@ -1,11 +1,13 @@
 package org.espenhahn.serializer.valueserializers;
 
+import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.io.UnsupportedEncodingException;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 import org.espenhahn.serializer.util.RetrievedObjects;
+import org.espenhahn.serializer.util.StaticStringSerializer;
 import org.espenhahn.serializer.util.VisitedObjects;
 
 import util.annotations.Comp533Tags;
@@ -13,40 +15,38 @@ import util.annotations.Tags;
 
 @Tags({ Comp533Tags.VALUE_SERIALIZER })
 public class StringSerializerImpl extends AValueSerializer {
-	private static final String ENCODING = "UTF16";
 
+	public StringSerializerImpl() {
+		super(false);
+	}
+	
 	@Override
 	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs)
 			throws NotSerializableException {
 		if (!(obj instanceof String)) throw new IllegalArgumentException("Expected String, got " + obj);
-		String str = (String) obj;
 		
-		out.append(str.length());
-		out.append(':');
-		out.append(str);
+		StaticStringSerializer.writeString(out, (String) obj);
 	}
 
 	@Override
 	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
 			throws NotSerializableException {
 		if (!(obj instanceof String)) throw new IllegalArgumentException("Expected String, got " + obj); 
-		String str = (String) obj;
 		
-		try {
-			byte[] bytes = str.getBytes(ENCODING);
-			out.putInt(bytes.length);
-			out.put(bytes);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		StaticStringSerializer.writeString(out, (String) obj);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
+	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrievedObjs)
 			throws StreamCorruptedException {
 		if (!clazz.isAssignableFrom(String.class)) throw new IllegalArgumentException("Expected String, got " + clazz);
 		
-		throw new UnsupportedOperationException();
+		try {
+			return (T) StaticStringSerializer.readString(in);
+		} catch (IOException e) {
+			throw new StreamCorruptedException();
+		}
 	}
 
 	@Override
@@ -55,16 +55,7 @@ public class StringSerializerImpl extends AValueSerializer {
 			throws StreamCorruptedException {
 		
 		if (!clazz.isAssignableFrom(String.class)) throw new IllegalArgumentException("Expected String, got " + clazz);
-		
-		int lng = in.getInt();
-		byte[] arr = new byte[lng];
-		in.get(arr);
-		
-		try {
-			return (T) new String(arr, ENCODING);
-		} catch (UnsupportedEncodingException e) {
-			throw new StreamCorruptedException();
-		}
+		return (T) StaticStringSerializer.readString(in);
 	}
 
 }

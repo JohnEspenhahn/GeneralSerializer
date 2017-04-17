@@ -1,5 +1,8 @@
 package org.espenhahn.serializer.valueserializers;
 
+import java.io.IOException;
+import java.io.StreamCorruptedException;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 import org.espenhahn.serializer.util.RetrievedObjects;
@@ -11,9 +14,13 @@ import util.annotations.Tags;
 @Tags({ Comp533Tags.VALUE_SERIALIZER })
 public class BooleanSerializerImpl extends AValueSerializer {
 
+	public BooleanSerializerImpl() {
+		super(true);
+	}
+
 	@Override
 	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs) {
-		out.append((boolean) obj);
+		out.append((Boolean) obj == true ? 'T' : 'F');
 	}
 
 	@Override
@@ -21,10 +28,15 @@ public class BooleanSerializerImpl extends AValueSerializer {
 		out.put((boolean) obj ? (byte) 1 : (byte) 0);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs) {
-		// TODO
-		throw new UnsupportedOperationException();
+	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrevedObjs) throws StreamCorruptedException {
+		try {
+			char c = (char) in.read();
+			return (T) (Boolean) (c == 'T' ? true : false);
+		} catch (IOException e) {
+			throw new StreamCorruptedException();
+		}
 	}
 
 	@Override

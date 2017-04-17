@@ -1,5 +1,6 @@
 package org.espenhahn.serializer.util;
 
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 public interface ClassNameSerializer {
@@ -11,7 +12,7 @@ public interface ClassNameSerializer {
 	
 	String readClassName(Object in);
 	
-	String readClassName(StringBuffer in);
+	String readClassName(StringReader in);
 	
 	String readClassName(ByteBuffer in);
 }

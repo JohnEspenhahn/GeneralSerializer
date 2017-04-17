@@ -1,6 +1,6 @@
 package org.espenhahn.serializer.specialvalueserializers;
 
-import java.io.StreamCorruptedException;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 import org.espenhahn.serializer.util.RetrievedObjects;
@@ -9,6 +9,10 @@ import org.espenhahn.serializer.valueserializers.AValueSerializer;
 
 public class NullSerializerImpl extends AValueSerializer implements SpecialValueSerializer {
 	
+	public NullSerializerImpl() {
+		super(false);
+	}
+
 	@Override
 	public String getClassName() {
 		return ".nl";
@@ -25,14 +29,12 @@ public class NullSerializerImpl extends AValueSerializer implements SpecialValue
 	}
 
 	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs)
-			throws StreamCorruptedException {
+	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrevedObjs) {
 		return null;
 	}
 
 	@Override
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs)
-			throws StreamCorruptedException {
+	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrevedObjs) {
 		return null;
 	}
 

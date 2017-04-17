@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.espenhahn.serializer.BinarySerializerImpl;
+import org.espenhahn.serializer.TextualSerializerImpl;
 import org.espenhahn.serializer.ValueSerializerRegistry;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -24,7 +24,7 @@ public class ValueSerializersTest {
 	@BeforeClass
 	public static void init() {
 		ValueSerializerRegistry.initDefault();
-		s = new BinarySerializerImpl();
+		s = new TextualSerializerImpl();
 	}
 	
 	@Test
@@ -63,7 +63,7 @@ public class ValueSerializersTest {
 	public void testString() {
 		assertSavesEquals("test");
 		assertSavesEquals("");
-		assertSavesEquals("sa.ääößÜ");
+		assertSavesEquals("sa.ï¿½ï¿½ï¿½ï¿½ï¿½");
 	}
 	
 	@Test
@@ -117,16 +117,25 @@ public class ValueSerializersTest {
 	}
 	
 	@Test
+	public void testBean() {
+		Object obj = new TestObject("test1", 10);
+		assertSavesEquals(obj);
+		
+		obj = new TestObject(null, 10);
+		assertSavesEquals(obj);
+	}
+	
+	@Test
 	public void testArray() {
 		assertArraySavesEquals(new Object[] { 1, 2, 3, 4 });
 		
-		Object obj = new TestObject("test1");
+		Object obj = new TestObject("test1", 10);
 		assertArraySavesEquals(new Object[] { obj, 1, obj, null, obj, "test" });
 	}
 	
 	Object apply(Object obj) {
 		try {
-			ByteBuffer bb = s.outputBufferFromObject(obj);
+			ByteBuffer bb = s.outputBufferFromObject(obj);			
 			return s.objectFromInputBuffer(bb);
 		} catch (Exception e) {
 			e.printStackTrace();

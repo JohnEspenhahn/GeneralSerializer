@@ -2,7 +2,6 @@ package org.espenhahn.serializer.valueserializers;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -15,79 +14,55 @@ import util.annotations.Comp533Tags;
 import util.annotations.Tags;
 
 @Tags({ Comp533Tags.VALUE_SERIALIZER })
-public class CollectionSerializerImpl extends AValueSerializer {
+public class CollectionSerializerImpl implements ValueSerializer {
 
 	@Override
-	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs)
+	public boolean isTerminal() {
+		return false;
+	}
+	
+	@Override
+	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs)
 			throws NotSerializableException {
 		if (!(obj instanceof Collection)) throw new IllegalArgumentException("Expected Collection, got " + obj);
 		Collection<?> collection = (Collection<?>) obj;
-
 		visitedObjs.visit(collection);
-		out.append(collection.size());
-		emitBody(out, collection, visitedObjs);
-	}
-
-	@Override
-	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
-		if (!(obj instanceof Collection)) throw new IllegalArgumentException("Expected Collection, got " + obj); 
-		Collection<?> collection = (Collection<?>) obj;
 		
-		visitedObjs.visit(collection);
-		out.putInt(collection.size());
-		emitBody(out, collection, visitedObjs);
-	}
-	
-	private void emitBody(Object out, Collection<?> collection, VisitedObjects visitedObjs) throws NotSerializableException {		
+		ValueSerializerRegistry.getValueSerializer(Integer.class)
+			.objectToBuffer(out, collection.size(), visitedObjs);
+		
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
-		
 		Iterator<?> it = collection.iterator();
 		while (it.hasNext()) {
 			Object component = it.next();
 			dispatcher.objectToBuffer(out, component, visitedObjs);
 		}
+		
 	}
 
-	@Override
-	protected <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
-		if (!Collection.class.isAssignableFrom(clazz)) throw new IllegalArgumentException("Expected Collection, got " + clazz);
-		
-		try {
-			Object obj = clazz.newInstance();
-			retrievedObjs.save(obj);
-			
-			// TODO
-			throw new UnsupportedOperationException();
-		} catch (InstantiationException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		
-		
-		return null;
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
+	@Override
+	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs)
+			throws StreamCorruptedException {
 		if (!Collection.class.isAssignableFrom(clazz)) throw new IllegalArgumentException("Expected Collection, got " + clazz);
-		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		try {
+			int length = ValueSerializerRegistry.getValueSerializer(Integer.class)
+					.objectFromBuffer(in, Integer.class, retrievedObjs);
+			
 			T t = (T) ValueSerializerRegistry.getDeserializedInstance(clazz);
 			retrievedObjs.save(t);
 			
-			int length = in.getInt();
-			for (int i = 0; i < length; i++) {
-				((Collection<Object>) t).add(dispatcher.objectFromBuffer(in, retrievedObjs));
-			}
+			DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
+			Collection<Object> collection = (Collection<Object>) t;
+			for (int i = 0; i < length; i++)
+				collection.add(dispatcher.objectFromBuffer(in, retrievedObjs));
 			
 			return t;
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
+			throw new StreamCorruptedException();
 		}
-		
-		return null;
 	}
 
 }

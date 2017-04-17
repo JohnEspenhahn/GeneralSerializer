@@ -1,10 +1,11 @@
 package org.espenhahn.serializer.util;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 public class ClassNameSerializerImpl implements ClassNameSerializer {
-	private static final String ENCODING = "UTF8";
+	private static final char DELIM = ':';
 	
 	public void writeClassName(Object out, String className) {
 		if (out instanceof StringBuffer)
@@ -16,46 +17,31 @@ public class ClassNameSerializerImpl implements ClassNameSerializer {
 	}
 	
 	public void writeClassName(StringBuffer out, String className) {
-		out.append(className);
-		out.append(':');
+		StaticStringSerializer.writeString(out, className, DELIM);
 	}
 	
 	public void writeClassName(ByteBuffer out, String className) {
-		try {			
-			byte[] classNameBuff = className.getBytes(ENCODING);
-			if (classNameBuff.length > Short.MAX_VALUE) 
-				throw new IllegalArgumentException("Classname longer than " + Short.MAX_VALUE);
-			
-			out.putShort((short) classNameBuff.length);
-			out.put(classNameBuff);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		StaticStringSerializer.writeString(out, className);
 	}
 	
 	public String readClassName(Object in) {
-		if (in instanceof StringBuffer)
-			return readClassName((StringBuffer) in);
+		if (in instanceof StringReader)
+			return readClassName((StringReader) in);
 		else if (in instanceof ByteBuffer)
 			return readClassName((ByteBuffer) in);
 		else
 			throw new IllegalArgumentException("Expected buffer, got " + in);
 	}
 	
-	public String readClassName(StringBuffer in) {		
-		// TODO
-		throw new UnsupportedOperationException();
+	public String readClassName(StringReader in) {		
+		try {
+			return StaticStringSerializer.readString(in, DELIM);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 	
 	public String readClassName(ByteBuffer in) {
-		int lng = in.getShort();
-		byte[] className = new byte[lng];
-		in.get(className);
-		try {
-			return new String(className, ENCODING);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			throw new RuntimeException("Encoding not supported"); 
-		}
+		return StaticStringSerializer.readString(in);
 	}
 }

@@ -2,6 +2,7 @@ package org.espenhahn.serializer.valueserializers;
 
 import java.io.NotSerializableException;
 import java.io.StreamCorruptedException;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 import org.espenhahn.serializer.util.RetrievedObjects;
@@ -16,6 +17,19 @@ import util.annotations.Tags;
 
 @Tags({ Comp533Tags.VALUE_SERIALIZER })
 public abstract class AValueSerializer implements ValueSerializer {
+	protected static final char DELIM = ',';
+	
+	private final boolean isTerminal;
+
+	protected AValueSerializer(boolean isPrimitive) {
+		this.isTerminal = isPrimitive;
+	}
+
+	@Override
+	public boolean isTerminal() {
+		return this.isTerminal;
+	}
+
 	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
 		ExtensibleValueSerializationInitiated.newCase(this, obj, out);
 		if (out instanceof StringBuffer) {
@@ -30,16 +44,17 @@ public abstract class AValueSerializer implements ValueSerializer {
 
 	protected abstract void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs)
 			throws NotSerializableException;
-	
+
 	protected abstract void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
 			throws NotSerializableException;
 
 	@SuppressWarnings("unchecked")
-	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
+	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs)
+			throws StreamCorruptedException {
 		Object obj;
 		ExtensibleBufferDeserializationInitiated.newCase(this, "", in, clazz);
-		if (in instanceof StringBuffer) {
-			obj = objectFromStringBuffer((StringBuffer) in, clazz, retrievedObjs);
+		if (in instanceof StringReader) {
+			obj = objectFromStringReader((StringReader) in, clazz, retrievedObjs);
 		} else if (in instanceof ByteBuffer) {
 			obj = objectFromByteBuffer((ByteBuffer) in, clazz, retrievedObjs);
 		} else {
@@ -48,23 +63,10 @@ public abstract class AValueSerializer implements ValueSerializer {
 		ExtensibleBufferDeserializationFinished.newCase(this, "", in, obj, retrievedObjs);
 		return (T) obj;
 	}
-	
-	protected abstract <T> T objectFromStringBuffer(StringBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
-	
-	protected abstract <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException;
-	
-	protected void writeArr(Object out, byte[] arr) {
-		if (out instanceof ByteBuffer) writeArr((ByteBuffer) out, arr);
-	}
-	
-	protected void writeArr(ByteBuffer out, byte[] arr) {
-		out.putInt(arr.length);
-		out.put(arr);
-	}
-	
-	protected void writeArr(StringBuffer out, byte[] arr) {
-		out.append(arr.length);
-		out.append(':');
-		out.append(new String(arr));
-	}
+
+	protected abstract <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrievedObjs)
+			throws StreamCorruptedException;
+
+	protected abstract <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
+			throws StreamCorruptedException;
 }

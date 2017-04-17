@@ -18,7 +18,7 @@ public class BinarySerializerImpl implements Serializer {
 	public BinarySerializerImpl() {
 		this.visitedObjs = new VisitedObjectsImpl();
 		this.retrievedObjs = new RetrievedObjectsImpl();
-		this.resultBuffer = ByteBuffer.allocate(2048);
+		this.resultBuffer = ByteBuffer.allocate(16384);
 	}
 
 	@Override

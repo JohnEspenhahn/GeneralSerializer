@@ -60,11 +60,17 @@ public class ValueSerializerRegistry {
 		registerValueSerializer(HashSet.class, new CollectionSerializerImpl());
 		registerValueSerializer(ArrayList.class, new CollectionSerializerImpl());
 		
+		registerValueSerializer(Integer.TYPE, new IntegerSerializerImpl());
 		registerValueSerializer(Integer.class, new IntegerSerializerImpl());
+		registerValueSerializer(Short.TYPE, new ShortSerializerImpl());
 		registerValueSerializer(Short.class, new ShortSerializerImpl());
+		registerValueSerializer(Long.TYPE, new LongSerializerImpl());
 		registerValueSerializer(Long.class, new LongSerializerImpl());
+		registerValueSerializer(Double.TYPE, new DoubleSerializerImpl());
 		registerValueSerializer(Double.class, new DoubleSerializerImpl());
+		registerValueSerializer(Float.TYPE, new FloatSerializerImpl());
 		registerValueSerializer(Float.class, new FloatSerializerImpl());
+		registerValueSerializer(Boolean.TYPE, new BooleanSerializerImpl());
 		registerValueSerializer(Boolean.class, new BooleanSerializerImpl());
 		
 		registerValueSerializer(String.class, new StringSerializerImpl());
