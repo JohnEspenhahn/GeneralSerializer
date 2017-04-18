@@ -2,46 +2,52 @@ package org.espenhahn.serializer.huffman;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import org.espenhahn.serializer.huffman.util.ByteBufferInputStream;
 
 public class HuffmanBuilder {
 
 	public static void main(String[] args) throws IOException {
 		File f = new File("classes.dat");
 		try {
-			ArrayList<String> strs = new ArrayList<String>();
-			Scanner s = new Scanner(new FileInputStream(f));
+			ArrayList<String> inList = new ArrayList<String>();
+			Scanner scanner = new Scanner(new FileInputStream(f));
+			while (scanner.hasNext())
+				inList.add(scanner.nextLine());
+			scanner.close();
 			
-			while (s.hasNext()) {
-				strs.add(s.nextLine());
-			}
+			String[] strings = inList.toArray(new String[inList.size()]);
+			HuffmanResult res = HuffmanResult.createFor(strings);
 			
-			HuffmanResult res = CharNode.createFor(strs.toArray(new String[strs.size()]));
-			
-			s.close();
+			inList.add("org.espenhahn.serializer.MinHeap");
 			
 			// Test
-			BitBuffer out = new BitBuffer(ByteBuffer.allocate(20));
-			
-			String test = "java.lang.String";
-			StringReader reader = new StringReader(test);
-			while (res.c.encode(reader, out)) { }
-			
-			System.out.println("Original length = " + test.getBytes("UTF8").length);
-			System.out.println("Encoded length = " + out.limit());
-			
-			out.flip();
-			StringBuilder decoded = new StringBuilder();
-			while (out.bb.remaining() > 0) {
-				decoded.append(res.e.read(out));
+			final int start = inList.size()-1;
+			final int tests = 1;
+			ByteBuffer bb = ByteBuffer.allocate(1024);
+			ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
+			double savings = 0;
+			for (int i = start; i < start+tests; i++) {
+				String s = inList.get(i);
+				
+				bb.clear();
+				res.encode(s, bb);
+				
+				double originalLng = s.length();
+				double encodedLng = bb.limit();
+				double thisSavings = (originalLng - encodedLng)/originalLng;
+				savings += thisSavings;
+				
+				System.out.println("Input   = " + s);
+				System.out.println("Decoded = " + res.decode(bbis));
+				System.out.println("Savings = " + thisSavings);
 			}
 			
-			System.out.println("Decoded = " + decoded.toString());
+			System.out.printf("Avg savings of %.1f%%\n", (savings/tests)*100);
 			
 		} catch (Exception e) {
 			// e.printStackTrace();
