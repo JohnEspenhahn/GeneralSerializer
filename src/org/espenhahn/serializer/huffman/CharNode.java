@@ -1,5 +1,7 @@
 package org.espenhahn.serializer.huffman;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +45,29 @@ public class CharNode extends HuffmanNode {
 		System.out.println(label + ": " + bits);
 	}
 	
+	@Override
+	public String read(BitBuffer bb) {
+		return this.label;
+	}
+	
+	public boolean encode(StringReader sr, BitBuffer bb) throws IOException {
+		int c = sr.read();
+		if (c == -1) return false;		
+		
+		CharNode next = edges.get((char) c);
+		if (next == null) {
+			for (int i = 0; i < bits; i++) {
+				int bit = (encoding >> i) & 1;
+				if (bit == 1) bb.putBit1();
+				else bb.putBit0();
+			}
+		} else {
+			next.encode(sr, bb);
+		}
+		
+		return true;
+	}
+	
 	private void visit(String s) {
 		char next_c = s.charAt(0);
 		CharNode next = edges.get(next_c);
@@ -71,14 +96,14 @@ public class CharNode extends HuffmanNode {
 		return idx;
 	}
 	
-	public static EncodingNode createFor(String[] ss) {
+	public static HuffmanResult createFor(String[] ss) {
 		CharNode root = new CharNode();
 		// Count occurrences 
 		// O(MAX_DEPTH * n) = O(n)
 		for (String s: ss) {
 			for (int j = 1; j <= MAX_DEPTH; j++) {
 				for (int i = 0, ii = s.length() - (j+1); i < ii; i++) {
-					root.visit(s.substring(i, i+j+1));
+					root.visit(s.substring(i, i+j));
 				}
 			}
 		}
@@ -96,7 +121,7 @@ public class CharNode extends HuffmanNode {
 		EncodingNode encoding_root = (EncodingNode) heap.removemin();
 		encoding_root.setEncoding(0, (byte) 0);
 		
-		return encoding_root;
+		return new HuffmanResult(encoding_root, root);
 	}
 	
 }

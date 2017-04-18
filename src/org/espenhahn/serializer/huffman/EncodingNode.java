@@ -10,6 +10,13 @@ public class EncodingNode extends HuffmanNode {
 		this.right = right;
 	}
 	
+	public String read(BitBuffer bb) {
+		if (bb.getBit())
+			return right.read(bb);
+		else
+			return left.read(bb);
+	}
+	
 	@Override
 	public void setEncoding(int encoding, byte bits) {
 		if (bits >= 30) throw new RuntimeException("Too many bits to encode!");
