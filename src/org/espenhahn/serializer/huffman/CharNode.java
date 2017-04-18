@@ -43,6 +43,10 @@ public class CharNode extends HuffmanNode {
 		System.out.println(label + ": " + bits);
 	}
 	
+	/**
+	 * Visit and count descendants 
+	 * @param s String to visit
+	 */
 	private void visit(String s) {
 		char next_c = s.charAt(0);
 		CharNode next = edges.get(next_c);
@@ -56,6 +60,10 @@ public class CharNode extends HuffmanNode {
 			next.visit(s.substring(1));
 	}
 	
+	/**
+	 * Count the number of descendants 
+	 * @return Number of descendants 
+	 */
 	private int countEdges() {
 		int size = edges.size();
 		for (CharNode n: edges.values())
@@ -63,12 +71,28 @@ public class CharNode extends HuffmanNode {
 		return size;
 	}
 	
+	/**
+	 * Flatten this and all children to an array
+	 * @param arr The array to flatten to (much be large enough, use countEdges to get size)
+	 * @param idx Starting index (for recursion)
+	 * @return The next index to flatten into (for recursion)
+	 */
 	private int flatten(HuffmanNode[] arr, int idx) {
 		for (CharNode n: edges.values()) {
 			arr[idx++] = n;
 			idx = n.flatten(arr, idx);
 		}
 		return idx;
+	}
+	
+	/**
+	 * Flatten this and all children to an array
+	 * @return The flattened array
+	 */
+	public HuffmanNode[] flatten() {
+		HuffmanNode[] all_nodes = new HuffmanNode[countEdges()];
+		flatten(all_nodes, 0);
+		return all_nodes;
 	}
 	
 	public static EncodingNode createFor(String[] ss) {
@@ -83,9 +107,7 @@ public class CharNode extends HuffmanNode {
 			}
 		}
 		
-		HuffmanNode[] all_nodes = new HuffmanNode[root.countEdges()];
-		root.flatten(all_nodes, 0);
-		
+		HuffmanNode[] all_nodes = root.flatten();		
 		MinHeap<HuffmanNode> heap = new MinHeap<HuffmanNode>(all_nodes);
 		while (heap.heapsize() > 1) {
 			HuffmanNode left = heap.removemin();
