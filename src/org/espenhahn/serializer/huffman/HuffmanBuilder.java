@@ -2,7 +2,9 @@ package org.espenhahn.serializer.huffman;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -23,11 +25,9 @@ public class HuffmanBuilder {
 			String[] strings = inList.toArray(new String[inList.size()]);
 			HuffmanResult res = HuffmanResult.createFor(strings);
 			
-			inList.add("org.espenhahn.serializer.MinHeap");
-			
 			// Test
-			final int start = inList.size()-1;
-			final int tests = 1;
+			final int start = 0;
+			final int tests = inList.size();
 			ByteBuffer bb = ByteBuffer.allocate(1024);
 			ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
 			double savings = 0;
@@ -36,6 +36,7 @@ public class HuffmanBuilder {
 				
 				bb.clear();
 				res.encode(s, bb);
+				bb.flip();
 				
 				double originalLng = s.length();
 				double encodedLng = bb.limit();
@@ -49,6 +50,9 @@ public class HuffmanBuilder {
 			
 			System.out.printf("Avg savings of %.1f%%\n", (savings/tests)*100);
 			
+			ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File("huffman.dat")));
+			os.writeObject(res);
+			os.close();
 		} catch (Exception e) {
 			// e.printStackTrace();
 			System.out.println(e);

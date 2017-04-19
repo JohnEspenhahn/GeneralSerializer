@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.espenhahn.serializer.TextualSerializerImpl;
+import org.espenhahn.serializer.BinarySerializerImpl;
 import org.espenhahn.serializer.ValueSerializerRegistry;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -22,9 +22,9 @@ public class ValueSerializersTest {
 	static Serializer s;
 	
 	@BeforeClass
-	public static void init() {
+	public static void init() {		
 		ValueSerializerRegistry.initDefault();
-		s = new TextualSerializerImpl();
+		s = new BinarySerializerImpl();
 	}
 	
 	@Test
@@ -133,9 +133,15 @@ public class ValueSerializersTest {
 		assertArraySavesEquals(new Object[] { obj, 1, obj, null, obj, "test" });
 	}
 	
+	@Test
+	public void testEnum() {
+		assertSavesEquals(TestEnum.BLUE);
+	}
+	
 	Object apply(Object obj) {
 		try {
-			ByteBuffer bb = s.outputBufferFromObject(obj);			
+			ByteBuffer bb = s.outputBufferFromObject(obj);
+			System.out.println();
 			return s.objectFromInputBuffer(bb);
 		} catch (Exception e) {
 			e.printStackTrace();
