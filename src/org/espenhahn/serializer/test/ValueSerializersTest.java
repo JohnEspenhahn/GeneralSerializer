@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.espenhahn.serializer.BinarySerializerImpl;
 import org.espenhahn.serializer.ValueSerializerRegistry;
@@ -105,6 +107,23 @@ public class ValueSerializersTest {
 	}
 	
 	@Test
+	public void testVector() {
+		List<Object> a = new Vector<Object>();
+		assertSavesEquals(a);
+		Object obj = new TestObject("test1");
+		a.add(obj);
+		assertSavesEquals(a);
+		a.add(obj);
+		assertSavesEquals(a);
+		a.add(null);
+		assertSavesEquals(a);
+		a.add(null);
+		assertSavesEquals(a);
+		a.add(obj);
+		assertSavesEquals(a);
+	}
+	
+	@Test
 	public void testHashMap() {
 		Map<Object, Object> a = new HashMap<Object, Object>();
 		assertSavesEquals(a);
@@ -113,6 +132,16 @@ public class ValueSerializersTest {
 		a.put(1, "test");
 		assertSavesEquals(a);
 		a.put(1, null);
+		assertSavesEquals(a);
+	}
+	
+	@Test
+	public void testHashtable() {
+		Map<Object, Object> a = new Hashtable<Object, Object>();
+		assertSavesEquals(a);
+		a.put("test", 1);
+		assertSavesEquals(a);
+		a.put(1, "test");
 		assertSavesEquals(a);
 	}
 	
@@ -136,6 +165,7 @@ public class ValueSerializersTest {
 	@Test
 	public void testEnum() {
 		assertSavesEquals(TestEnum.BLUE);
+		assertSavesEquals(TestEnum.RED);
 	}
 	
 	Object apply(Object obj) {
