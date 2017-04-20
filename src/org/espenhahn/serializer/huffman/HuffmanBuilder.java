@@ -26,8 +26,8 @@ public class HuffmanBuilder {
 			inList.add("org.espenhahn.serializer.MinHeap");
 			
 			// Test
-			final int start = inList.size()-1;
-			final int tests = 1;
+			final int start = 0;
+			final int tests = inList.size();
 			ByteBuffer bb = ByteBuffer.allocate(1024);
 			ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
 			double savings = 0;
@@ -42,9 +42,9 @@ public class HuffmanBuilder {
 				double thisSavings = (originalLng - encodedLng)/originalLng;
 				savings += thisSavings;
 				
-				System.out.println("Input   = " + s);
-				System.out.println("Decoded = " + res.decode(bbis));
-				System.out.println("Savings = " + thisSavings);
+//				System.out.println("Input   = " + s);
+//				System.out.println("Decoded = " + res.decode(bbis));
+//				System.out.println("Savings = " + thisSavings);
 			}
 			
 			System.out.printf("Avg savings of %.1f%%\n", (savings/tests)*100);

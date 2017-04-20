@@ -1,34 +1,34 @@
 package org.espenhahn.serializer.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VisitedObjectsImpl implements VisitedObjects {
 
-	private Map<Object, Integer> map;
+	private List<Object> list;
 	
 	public VisitedObjectsImpl() {
-		this.map = new HashMap<Object, Integer>();
+		this.list = new ArrayList<Object>();
 	}
 	
 	@Override
 	public void visit(Object obj) {
 		if (!isVisited(obj))
-			map.put(obj, map.size());
+			list.add(obj);
 	}
 
 	@Override
 	public boolean isVisited(Object obj) {
-		return map.containsKey(obj);
+		return list.contains(obj);
 	}
 
 	@Override
 	public int getIndex(Object obj) {
-		return map.getOrDefault(obj, -1);
+		return list.indexOf(obj);
 	}
 	
 	public void reset() {
-		map.clear();
+		list.clear();
 	}
 
 }
