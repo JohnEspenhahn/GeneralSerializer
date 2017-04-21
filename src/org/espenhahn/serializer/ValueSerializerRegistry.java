@@ -1,7 +1,5 @@
 package org.espenhahn.serializer;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,14 +37,14 @@ import util.misc.RemoteReflectionUtility;
 
 @Tags({ Comp533Tags.SERIALIZER_REGISTRY })
 public class ValueSerializerRegistry {
-	private static ClassNameSerializer classNameSerializer;
+	private static ClassNameSerializer classNameSerializer = new ClassNameSerializerImpl();
 	static {
-		try {
-			classNameSerializer = new ClassNameSerializerImpl(new File("huffman.dat"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(4);
-		}
+//		try {
+//			classNameSerializer = new ClassNameSerializerImpl(new File("huffman.dat"));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			System.exit(4);
+//		}
 	}
 	
 	private static Map<Class<?>, ValueSerializer> serializers = new HashMap<Class<?>, ValueSerializer>();

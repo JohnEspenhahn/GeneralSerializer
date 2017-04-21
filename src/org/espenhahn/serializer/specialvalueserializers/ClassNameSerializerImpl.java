@@ -47,7 +47,7 @@ public class ClassNameSerializerImpl implements ClassNameSerializer {
 	public void writeClassName(ByteBuffer out, String className) {
 		if (encoder != null) {
 			try {
-				encoder.encode(className, out);
+				encoder.encode(className, out, true);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

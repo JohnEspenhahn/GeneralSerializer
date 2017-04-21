@@ -40,7 +40,12 @@ public class EncodingNode extends HuffmanNode {
 		this.encoding = encoding;
 		this.bits = bits;
 		
-		if (DEBUG) System.out.println(label + ": " + bits);
+		if (DEBUG) {
+			System.out.print(label + ": ");
+			for (int i = 1; i < 1 << bits; i <<= 1)
+				System.out.print((encoding & i) != 0 ? 1 : 0);
+			System.out.println();
+		}
 	}
 	
 	@Override

@@ -26,14 +26,14 @@ public class HuffmanResult implements Serializable {
 		this.encode = c;
 	}
 	
-	public void encode(String s, ByteBuffer bb) throws IOException {
+	public void encode(String s, ByteBuffer bb, boolean addTerminal) throws IOException {
 		ByteBufferOutputStream bbos = new ByteBufferOutputStream();
 		BitOutputStream bos = new BitOutputStream(bbos);
 		
 		StringReader sreader = new StringReader(s);
 		PushbackReader reader = new PushbackReader(sreader);
 		while (encode.encode(reader, bos)) { }
-		bos.write(1, 0); // End marker
+		if (addTerminal) bos.write(1, 0); // End marker
 		// System.out.println();
 		bos.close();		
 		
@@ -58,7 +58,7 @@ public class HuffmanResult implements Serializable {
 		return res;
 	}
 	
-	public static HuffmanResult createFor(String[] ss) {
+	public static HuffmanResult createFor(String[] ss, boolean addTerminal) {
 		EncodingNode root = new EncodingNode();
 		// Count occurrences 
 		// O(MAX_DEPTH * mn) = O(mn)
@@ -76,7 +76,10 @@ public class HuffmanResult implements Serializable {
 		}
 		
 		// Force 0 => empty
-		DecodingNode encoding_root = new DecodingNode(new EncodingNode(null), (DecodingNode) heap.removemin());
+		DecodingNode encoding_root = (DecodingNode) heap.removemin();
+		if (addTerminal)
+			encoding_root = new DecodingNode(new EncodingNode(null), (DecodingNode) heap.removemin());
+		
 		encoding_root.setEncoding(0, (byte) 0);
 		
 		return new HuffmanResult(encoding_root, root);

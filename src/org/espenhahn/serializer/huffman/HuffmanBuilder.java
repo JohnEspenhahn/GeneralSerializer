@@ -14,7 +14,14 @@ import org.espenhahn.serializer.huffman.util.ByteBufferInputStream;
 public class HuffmanBuilder {
 
 	public static void main(String[] args) throws IOException {
-		File f = new File("classes.dat");
+		String input = "huffmansources/input.txt";
+		String output = "550_huffman.dat";
+		boolean addTerminal = false;
+		
+		DecodingNode.DEBUG = true;
+		EncodingNode.DEBUG = true;
+		
+		File f = new File(input);
 		try {
 			ArrayList<String> inList = new ArrayList<String>();
 			Scanner scanner = new Scanner(new FileInputStream(f));
@@ -23,19 +30,19 @@ public class HuffmanBuilder {
 			scanner.close();
 			
 			String[] strings = inList.toArray(new String[inList.size()]);
-			HuffmanResult res = HuffmanResult.createFor(strings);
+			HuffmanResult res = HuffmanResult.createFor(strings, addTerminal);
 			
 			// Test
 			final int start = 0;
 			final int tests = inList.size();
-			ByteBuffer bb = ByteBuffer.allocate(1024);
+			ByteBuffer bb = ByteBuffer.allocate(8192);
 			ByteBufferInputStream bbis = new ByteBufferInputStream(bb);
 			double savings = 0;
 			for (int i = start; i < start+tests; i++) {
 				String s = inList.get(i);
 				
 				bb.clear();
-				res.encode(s, bb);
+				res.encode(s, bb, addTerminal);
 				bb.flip();
 				
 				double originalLng = s.length();
@@ -50,7 +57,7 @@ public class HuffmanBuilder {
 			
 			System.out.printf("Avg savings of %.1f%%\n", (savings/tests)*100);
 			
-			ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File("huffman.dat")));
+			ObjectOutputStream os = new ObjectOutputStream(new FileOutputStream(new File(output)));
 			os.writeObject(res);
 			os.close();
 		} catch (Exception e) {
