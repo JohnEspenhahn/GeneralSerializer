@@ -1,4 +1,4 @@
-package org.espenhahn.serializer.util;
+package org.espenhahn.serializer.specialvalueserializers;
 
 import java.io.StringReader;
 import java.nio.ByteBuffer;

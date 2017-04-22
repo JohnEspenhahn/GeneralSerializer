@@ -1,5 +1,7 @@
 package org.espenhahn.serializer;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,11 +16,11 @@ import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializer;
 import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.EnumSerializerImpl;
 import org.espenhahn.serializer.dispatchingserializer.ListSerializerImpl;
+import org.espenhahn.serializer.specialvalueserializers.ClassNameSerializer;
+import org.espenhahn.serializer.specialvalueserializers.ClassNameSerializerImpl;
 import org.espenhahn.serializer.specialvalueserializers.NullSerializerImpl;
 import org.espenhahn.serializer.specialvalueserializers.SpecialValueSerializer;
 import org.espenhahn.serializer.specialvalueserializers.VisitedRefSerializerImpl;
-import org.espenhahn.serializer.util.ClassNameSerializer;
-import org.espenhahn.serializer.util.ClassNameSerializerImpl;
 import org.espenhahn.serializer.util.VisitedObjects;
 import org.espenhahn.serializer.valueserializers.BooleanSerializerImpl;
 import org.espenhahn.serializer.valueserializers.CollectionSerializerImpl;
@@ -38,6 +40,15 @@ import util.misc.RemoteReflectionUtility;
 @Tags({ Comp533Tags.SERIALIZER_REGISTRY })
 public class ValueSerializerRegistry {
 	private static ClassNameSerializer classNameSerializer = new ClassNameSerializerImpl();
+	static {
+		// Run HuffmanBuilder then uncomment this to enable class name compression for BinarySerialization
+		try {
+			classNameSerializer = new ClassNameSerializerImpl(new File("huffman.dat"));
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(4);
+		}
+	}
 	
 	private static Map<Class<?>, ValueSerializer> serializers = new HashMap<Class<?>, ValueSerializer>();
 	private static Map<Class<?>, Class<?>> deserializingClass = new HashMap<Class<?>, Class<?>>();

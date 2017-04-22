@@ -9,23 +9,23 @@ import org.apache.commons.compress.utils.BitInputStream;
 import org.espenhahn.serializer.huffman.util.BitOutputStream;
 
 public class EncodingNode extends HuffmanNode {
+	private static final long serialVersionUID = -2465908902211308357L;
 	public static boolean DEBUG = false;
 	
-	private int depth;
+	private transient int weight;
+	
 	private String label;
 	private Map<Character, EncodingNode> edges;
-	private int weight;
 	
 	private int encoding;
 	private byte bits;
 	
 	EncodingNode() {
-		this("",0);
+		this("");
 	}
 	
-	EncodingNode(String lbl, int depth) {
+	EncodingNode(String lbl) {
 		this.edges = new HashMap<Character, EncodingNode>();
-		this.depth = depth;
 		this.label = lbl;
 		this.weight = 0;
 	}
@@ -36,16 +36,16 @@ public class EncodingNode extends HuffmanNode {
 	}
 	
 	@Override
-	public int getDepth() {
-		return depth;
-	}
-	
-	@Override
 	public void setEncoding(int encoding, byte bits) {
 		this.encoding = encoding;
 		this.bits = bits;
 		
-		if (DEBUG) System.out.println(label + ": " + bits);
+		if (DEBUG) {
+			System.out.print(label + ": ");
+			for (int i = 1; i < 1 << bits; i <<= 1)
+				System.out.print((encoding & i) != 0 ? 1 : 0);
+			System.out.println();
+		}
 	}
 	
 	@Override
@@ -80,27 +80,33 @@ public class EncodingNode extends HuffmanNode {
 		}
 	}
 	
-	protected final void visit(String s) {
+	protected final void buildWeight(String s) {
 		char next_c = s.charAt(0);
 		EncodingNode next = edges.get(next_c);
 		if (next == null) {
-			next = new EncodingNode(label + next_c, depth+1);
+			next = new EncodingNode(label + next_c);
 			edges.put(next_c, next);
 		}
 		
 		next.weight += 1;
 		if (s.length() > 1)
-			next.visit(s.substring(1));
+			next.buildWeight(s.substring(1));
 	}
 	
-	protected final int countEdges() {
+	protected final HuffmanNode[] flatten() {
+		HuffmanNode[] arr = new HuffmanNode[countEdges()];
+		flatten(arr, 0);
+		return arr;
+	}
+	
+	private final int countEdges() {
 		int size = edges.size();
 		for (EncodingNode n: edges.values())
 			size += n.countEdges();
 		return size;
 	}
 	
-	protected final int flatten(HuffmanNode[] arr, int idx) {
+	private final int flatten(HuffmanNode[] arr, int idx) {
 		for (EncodingNode n: edges.values()) {
 			arr[idx++] = n;
 			idx = n.flatten(arr, idx);

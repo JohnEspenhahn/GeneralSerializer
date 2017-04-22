@@ -1,4 +1,4 @@
-package org.espenhahn.serializer.util;
+package org.espenhahn.serializer.specialvalueserializers;
 
 import java.io.IOException;
 import java.io.StringReader;

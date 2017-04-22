@@ -5,8 +5,8 @@ import java.io.StreamCorruptedException;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 
+import org.espenhahn.serializer.specialvalueserializers.StaticStringSerializer;
 import org.espenhahn.serializer.util.RetrievedObjects;
-import org.espenhahn.serializer.util.StaticStringSerializer;
 import org.espenhahn.serializer.util.VisitedObjects;
 
 import util.annotations.Comp533Tags;

@@ -2,6 +2,7 @@ package org.espenhahn.serializer.huffman;
 
 import java.io.IOException;
 import java.io.PushbackReader;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -12,9 +13,10 @@ import org.espenhahn.serializer.huffman.util.ByteBufferInputStream;
 import org.espenhahn.serializer.huffman.util.ByteBufferOutputStream;
 import org.espenhahn.serializer.util.pool.Pool;
 
-public class HuffmanResult {
+public class HuffmanResult implements Serializable {
+	private static final long serialVersionUID = 7881273268974691493L;
 	private static Pool<StringBuilder> StringBuilderPool = new Pool<StringBuilder>(StringBuilder.class);
-	private static final int MAX_DEPTH = 4;
+	private static final int MAX_DEPTH = 3;
 	
 	private DecodingNode decode;
 	private EncodingNode encode;
@@ -24,19 +26,19 @@ public class HuffmanResult {
 		this.encode = c;
 	}
 	
-	public void encode(String s, ByteBuffer bb) throws IOException {
+	public void encode(String s, ByteBuffer bb, boolean addTerminal) throws IOException {
 		ByteBufferOutputStream bbos = new ByteBufferOutputStream();
 		BitOutputStream bos = new BitOutputStream(bbos);
 		
 		StringReader sreader = new StringReader(s);
 		PushbackReader reader = new PushbackReader(sreader);
 		while (encode.encode(reader, bos)) { }
+		if (addTerminal) bos.write(1, 0); // End marker
 		// System.out.println();
 		bos.close();		
 		
 		byte[] bytes = bbos.getBytes();
 		bb.put(bytes, 0, bbos.getCount());
-		bb.flip();
 	}
 	
 	public String decode(ByteBufferInputStream bbis) throws IOException {
@@ -56,22 +58,17 @@ public class HuffmanResult {
 		return res;
 	}
 	
-	public static HuffmanResult createFor(String[] ss) {
+	public static HuffmanResult createFor(String[] ss, boolean addTerminal) {
 		EncodingNode root = new EncodingNode();
 		// Count occurrences 
-		// O(MAX_DEPTH * n) = O(n)
-		for (String s: ss) {
-			for (int j = 0; j < MAX_DEPTH && j < s.length(); j++) {
-				for (int i = 0, ii = s.length() - j; i < ii; i++) {
-					root.visit(s.substring(i, i+j+1));
-				}
-			}
-		}
+		// O(MAX_DEPTH * mn) = O(mn)
+		for (String s: ss)
+			for (int j = 0; j < MAX_DEPTH && j < s.length(); j++)
+				for (int i = 0, ii = s.length() - j; i < ii; i++)
+					root.buildWeight(s.substring(i, i+j+1));
 
-		HuffmanNode[] all_nodes = new HuffmanNode[root.countEdges()];
-		root.flatten(all_nodes, 0);
-		
-		MinHeap<HuffmanNode> heap = new MinHeap<HuffmanNode>(all_nodes);
+		HuffmanNode[] all_nodes = root.flatten(); // O(mn)		
+		MinHeap<HuffmanNode> heap = new MinHeap<HuffmanNode>(all_nodes); // Heapify O(log(mn))
 		while (heap.heapsize() > 1) {
 			HuffmanNode left = heap.removemin();
 			HuffmanNode right = heap.removemin();
@@ -79,7 +76,10 @@ public class HuffmanResult {
 		}
 		
 		// Force 0 => empty
-		DecodingNode encoding_root = new DecodingNode(new EncodingNode("",-1), (DecodingNode) heap.removemin());
+		DecodingNode encoding_root = (DecodingNode) heap.removemin();
+		if (addTerminal)
+			encoding_root = new DecodingNode(new EncodingNode(null), (DecodingNode) encoding_root);
+		
 		encoding_root.setEncoding(0, (byte) 0);
 		
 		return new HuffmanResult(encoding_root, root);

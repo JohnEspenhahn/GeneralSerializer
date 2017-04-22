@@ -1,10 +1,13 @@
 package org.espenhahn.serializer.huffman;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.commons.compress.utils.BitInputStream;
 
-public class DecodingNode extends HuffmanNode {
+public class DecodingNode extends HuffmanNode implements Serializable {
+	private static final long serialVersionUID = -5118526191862640551L;
+
 	public static boolean DEBUG = false;
 
 	private HuffmanNode left;
@@ -40,11 +43,6 @@ public class DecodingNode extends HuffmanNode {
 	@Override
 	public int getWeight() {
 		return left.getWeight() + right.getWeight();
-	}
-	
-	@Override
-	public int getDepth() {
-		return -1;
 	}
 	
 }

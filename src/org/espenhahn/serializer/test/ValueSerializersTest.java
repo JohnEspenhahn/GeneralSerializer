@@ -58,8 +58,6 @@ public class ValueSerializersTest {
 			String s = new String(bytes);
 			System.out.println(s);
 			
-			System.out.println(bytes.length);
-			
 			ByteBuffer b = (new BinarySerializerImpl()).outputBufferFromObject(obj);
 			System.out.println(b.limit());
 			
