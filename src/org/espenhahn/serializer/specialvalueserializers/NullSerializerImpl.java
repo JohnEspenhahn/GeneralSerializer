@@ -7,6 +7,10 @@ import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
 import org.espenhahn.serializer.valueserializers.AValueSerializer;
 
+import util.annotations.Comp533Tags;
+import util.annotations.Tags;
+
+@Tags({ Comp533Tags.NULL_SERIALIZER })
 public class NullSerializerImpl extends AValueSerializer implements SpecialValueSerializer {
 	
 	public NullSerializerImpl() {

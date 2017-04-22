@@ -21,25 +21,20 @@ public class StringSerializerImpl extends AValueSerializer {
 	}
 	
 	@Override
-	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
+	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
 		if (!(obj instanceof String)) throw new IllegalArgumentException("Expected String, got " + obj);
-		
 		StaticStringSerializer.writeString(out, (String) obj);
 	}
 
 	@Override
-	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs)
-			throws NotSerializableException {
-		if (!(obj instanceof String)) throw new IllegalArgumentException("Expected String, got " + obj); 
-		
+	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
+		if (!(obj instanceof String)) throw new IllegalArgumentException("Expected String, got " + obj);
 		StaticStringSerializer.writeString(out, (String) obj);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException {
+	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		if (!clazz.isAssignableFrom(String.class)) throw new IllegalArgumentException("Expected String, got " + clazz);
 		
 		try {
@@ -51,9 +46,7 @@ public class StringSerializerImpl extends AValueSerializer {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException {
-		
+	protected <T> T objectFromByteBuffer(ByteBuffer in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {		
 		if (!clazz.isAssignableFrom(String.class)) throw new IllegalArgumentException("Expected String, got " + clazz);
 		return (T) StaticStringSerializer.readString(in);
 	}

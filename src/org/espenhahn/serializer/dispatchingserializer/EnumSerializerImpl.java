@@ -23,21 +23,18 @@ public class EnumSerializerImpl extends AValueSerializer {
 	@Override
 	protected void objectToStringBuffer(StringBuffer out, Object obj, VisitedObjects visitedObjs) {
 		if (!obj.getClass().isEnum()) throw new IllegalArgumentException("Expected Enum, got " + obj);
-		
 		StaticStringSerializer.writeString(out, obj.toString(), DELIM);
 	}
 
 	@Override
 	protected void objectToByteBuffer(ByteBuffer out, Object obj, VisitedObjects visitedObjs) {
 		if (!obj.getClass().isEnum()) throw new IllegalArgumentException("Expected Enum, got " + obj);
-		
 		StaticStringSerializer.writeString(out, obj.toString());
 	}
 
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException {
+	protected <T> T objectFromStringReader(StringReader in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		if (!clazz.isEnum()) throw new IllegalArgumentException("Expected Enum, got " + clazz);
 		
 		try {

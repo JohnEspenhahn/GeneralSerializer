@@ -11,6 +11,10 @@ import org.espenhahn.serializer.dispatchingserializer.DispatchingSerializer;
 import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
 
+import port.trace.serialization.extensible.ExtensibleBufferDeserializationFinished;
+import port.trace.serialization.extensible.ExtensibleBufferDeserializationInitiated;
+import port.trace.serialization.extensible.ExtensibleValueSerializationFinished;
+import port.trace.serialization.extensible.ExtensibleValueSerializationInitiated;
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
 
@@ -25,8 +29,9 @@ public class MapSerializerImpl implements ValueSerializer {
 	@Override
 	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
 		if (!(obj instanceof Map)) throw new IllegalArgumentException("Expected Map, got " + obj);
-		Map<?,?> map = (Map<?,?>) obj;
+		ExtensibleValueSerializationInitiated.newCase(this, obj, out);
 		
+		Map<?,?> map = (Map<?,?>) obj;		
 		visitedObjs.visit(map);
 		ValueSerializerRegistry.getValueSerializer(Integer.class)
 			.objectToBuffer(out, map.size(), visitedObjs);
@@ -38,12 +43,15 @@ public class MapSerializerImpl implements ValueSerializer {
 			dispatcher.objectToBuffer(out, entry.getKey(), visitedObjs);
 			dispatcher.objectToBuffer(out, entry.getValue(), visitedObjs);
 		}
+		
+		ExtensibleValueSerializationFinished.newCase(this, obj, out, visitedObjs);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {		
 		if (!Map.class.isAssignableFrom(clazz)) throw new IllegalArgumentException("Expected Map, got " + clazz);
+		ExtensibleBufferDeserializationInitiated.newCase(this, null, in, clazz);
 		
 		try {
 			T t = (T) ValueSerializerRegistry.getDeserializedInstance(clazz);
@@ -60,6 +68,7 @@ public class MapSerializerImpl implements ValueSerializer {
 				map.put(key, value);
 			}
 			
+			ExtensibleBufferDeserializationFinished.newCase(this, "", in, map, retrievedObjs);
 			return t;
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new StreamCorruptedException();

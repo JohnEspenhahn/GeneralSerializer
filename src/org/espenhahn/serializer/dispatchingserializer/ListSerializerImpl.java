@@ -9,6 +9,10 @@ import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
 import org.espenhahn.serializer.valueserializers.ValueSerializer;
 
+import port.trace.serialization.extensible.ExtensibleBufferDeserializationFinished;
+import port.trace.serialization.extensible.ExtensibleBufferDeserializationInitiated;
+import port.trace.serialization.extensible.ExtensibleValueSerializationFinished;
+import port.trace.serialization.extensible.ExtensibleValueSerializationInitiated;
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
 import util.misc.RemoteReflectionUtility;
@@ -22,9 +26,10 @@ public class ListSerializerImpl implements ValueSerializer {
 	}
 	
 	@Override
-	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
+	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {		
 		if (!RemoteReflectionUtility.isList(obj.getClass())) throw new IllegalArgumentException("Expected List, got " + obj);
 		else if (!(obj instanceof Serializable)) throw new NotSerializableException();
+		ExtensibleValueSerializationInitiated.newCase(this, obj, out);
 		
 		visitedObjs.visit(obj);
 		ValueSerializerRegistry.getValueSerializer(Integer.class)
@@ -37,12 +42,16 @@ public class ListSerializerImpl implements ValueSerializer {
 			Object component = RemoteReflectionUtility.listGet(obj, i);
 			dispatcher.objectToBuffer(out, component, visitedObjs);
 		}
+		
+		ExtensibleValueSerializationFinished.newCase(this, obj, out, visitedObjs);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
-		if (!RemoteReflectionUtility.isList(clazz)) throw new IllegalArgumentException("Expected List, got " + clazz);		
+		if (!RemoteReflectionUtility.isList(clazz)) throw new IllegalArgumentException("Expected List, got " + clazz);
+		ExtensibleBufferDeserializationInitiated.newCase(this, null, in, clazz);
+		
 		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
 		
 		// Create instance
@@ -59,6 +68,7 @@ public class ListSerializerImpl implements ValueSerializer {
 		for (int i = 0; i < length; i++)
 			RemoteReflectionUtility.listAdd(list, dispatcher.objectFromBuffer(in, retrievedObjs));
 		
+		ExtensibleBufferDeserializationFinished.newCase(this, "", in, list, retrievedObjs);
 		return (T) list;
 	}
 

@@ -14,6 +14,10 @@ import org.espenhahn.serializer.util.RetrievedObjects;
 import org.espenhahn.serializer.util.VisitedObjects;
 import org.espenhahn.serializer.valueserializers.ValueSerializer;
 
+import port.trace.serialization.extensible.ExtensibleBufferDeserializationFinished;
+import port.trace.serialization.extensible.ExtensibleBufferDeserializationInitiated;
+import port.trace.serialization.extensible.ExtensibleValueSerializationFinished;
+import port.trace.serialization.extensible.ExtensibleValueSerializationInitiated;
 import util.annotations.Comp533Tags;
 import util.annotations.Tags;
 import util.misc.RemoteReflectionUtility;
@@ -29,16 +33,16 @@ public class BeanSerializerImpl implements ValueSerializer {
 	@Override
 	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
 		if (!(obj instanceof Serializable)) throw new NotSerializableException();
+		ExtensibleValueSerializationInitiated.newCase(this, obj, out);
 		
-		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
-		
+		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();		
 		try {
 			BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 			
 			visitedObjs.visit(obj);
 			PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
 			for (PropertyDescriptor d: descriptors) {
-				if (d.getWriteMethod() == null) {
+				if (d.getWriteMethod() == null || d.getReadMethod() == null) {
 					continue; // Transient
 				} else if (RemoteReflectionUtility.isTransient(d.getReadMethod())) {
 					continue; // Transient
@@ -64,13 +68,16 @@ public class BeanSerializerImpl implements ValueSerializer {
 		} catch (IntrospectionException e) {
 			throw new NotSerializableException();
 		}
+		
+		ExtensibleValueSerializationFinished.newCase(this, obj, out, visitedObjs);
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
-		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();
+		ExtensibleBufferDeserializationInitiated.newCase(this, null, in, clazz);
 		
+		DispatchingSerializer dispatcher = ValueSerializerRegistry.getDispatchingSerializer();		
 		try {
 			Object obj = ValueSerializerRegistry.getDeserializedInstance(clazz);
 			BeanInfo info = Introspector.getBeanInfo(clazz);
@@ -78,7 +85,7 @@ public class BeanSerializerImpl implements ValueSerializer {
 			retrievedObjs.save(obj);
 			PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
 			for (PropertyDescriptor d: descriptors) {
-				if (d.getWriteMethod() == null) {
+				if (d.getWriteMethod() == null || d.getReadMethod() == null) {
 					continue; // Transient
 				} else if (RemoteReflectionUtility.isTransient(d.getReadMethod())) {
 					continue; // Transient
@@ -98,6 +105,7 @@ public class BeanSerializerImpl implements ValueSerializer {
 				}
 			}
 			
+			ExtensibleBufferDeserializationFinished.newCase(this, "", in, obj, retrievedObjs);
 			return (T) obj;
 		} catch (IntrospectionException | InstantiationException | IllegalAccessException e) {
 			throw new StreamCorruptedException();

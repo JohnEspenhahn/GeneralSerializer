@@ -32,6 +32,7 @@ public abstract class AValueSerializer implements ValueSerializer {
 
 	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
 		ExtensibleValueSerializationInitiated.newCase(this, obj, out);
+		
 		if (out instanceof StringBuffer) {
 			objectToStringBuffer((StringBuffer) out, obj, visitedObjs);
 		} else if (out instanceof ByteBuffer) {
@@ -39,6 +40,7 @@ public abstract class AValueSerializer implements ValueSerializer {
 		} else {
 			throw new IllegalArgumentException("Invalid output buffer provided");
 		}
+		
 		ExtensibleValueSerializationFinished.newCase(this, obj, out, visitedObjs);
 	}
 
@@ -49,10 +51,10 @@ public abstract class AValueSerializer implements ValueSerializer {
 			throws NotSerializableException;
 
 	@SuppressWarnings("unchecked")
-	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs)
-			throws StreamCorruptedException {
-		Object obj;
+	public <T> T objectFromBuffer(Object in, Class<T> clazz, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
 		ExtensibleBufferDeserializationInitiated.newCase(this, "", in, clazz);
+		
+		Object obj;
 		if (in instanceof StringReader) {
 			obj = objectFromStringReader((StringReader) in, clazz, retrievedObjs);
 		} else if (in instanceof ByteBuffer) {
@@ -60,6 +62,7 @@ public abstract class AValueSerializer implements ValueSerializer {
 		} else {
 			throw new IllegalArgumentException("Invalid input buffer provided");
 		}
+		
 		ExtensibleBufferDeserializationFinished.newCase(this, "", in, obj, retrievedObjs);
 		return (T) obj;
 	}

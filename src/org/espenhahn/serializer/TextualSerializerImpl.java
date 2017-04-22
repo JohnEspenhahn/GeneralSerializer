@@ -28,10 +28,10 @@ public class TextualSerializerImpl implements Serializer {
 	public Object objectFromInputBuffer(ByteBuffer in) throws StreamCorruptedException {
 		retrievedObjs.reset();
 		
-		byte[] bytes = new byte[in.limit()];
+		byte[] bytes = new byte[in.remaining()];
 		in.get(bytes);
 		String str = new String(bytes);
-		System.out.println(str);
+		// System.out.println(str);
 		
 		StringReader inReader = new StringReader(str);
 		return ValueSerializerRegistry.getDispatchingSerializer().objectFromBuffer(inReader, retrievedObjs);

@@ -1,5 +1,6 @@
 package org.espenhahn.serializer.test;
 
+import java.io.NotSerializableException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.espenhahn.serializer.BinarySerializerImpl;
 import org.espenhahn.serializer.TextualSerializerImpl;
 import org.espenhahn.serializer.ValueSerializerRegistry;
 import org.junit.Assert;
@@ -25,6 +27,47 @@ public class ValueSerializersTest {
 	public static void init() {
 		ValueSerializerRegistry.initDefault();
 		s = new TextualSerializerImpl();
+	}
+	
+	@Test
+	public void testWithPrint() {
+		MyObject obj = new MyObject();
+		MyObject obj2 = new MyObject();
+		
+		obj.obj1 = obj2;
+		obj2.obj1 = obj;
+		
+		obj.anInt = 1;
+		obj2.anInt = 2;
+		
+		obj.objects = new ArrayList();
+		obj.objects.add(10);
+		obj.objects.add("Hello world");
+		obj.objects.add(obj2);
+		
+		obj2.objects = obj.objects;
+		
+		obj2.maps = new HashMap();
+		obj2.maps.put("key1", "value1");
+		obj2.maps.put("key2", "value2");
+		
+		try {
+			ByteBuffer textB = (new TextualSerializerImpl()).outputBufferFromObject(obj);
+			byte[] bytes = new byte[textB.limit()];
+			textB.get(bytes);
+			String s = new String(bytes);
+			System.out.println(s);
+			
+			System.out.println(bytes.length);
+			
+			ByteBuffer b = (new BinarySerializerImpl()).outputBufferFromObject(obj);
+			System.out.println(b.limit());
+			
+			while (b.hasRemaining())
+				System.out.print(b.get() + " ");
+		} catch (NotSerializableException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

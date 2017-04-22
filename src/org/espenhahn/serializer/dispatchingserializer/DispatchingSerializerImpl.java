@@ -18,8 +18,7 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 
 	@Override
 	public void objectToBuffer(Object out, Object obj, VisitedObjects visitedObjs) throws NotSerializableException {
-		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();
-		
+		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();		
 		SpecialValueSerializer specialSerializer = ValueSerializerRegistry.getSpecialValueSerializer(obj, visitedObjs);
 		if (specialSerializer != null) {
 			cns.writeClassName(out, specialSerializer.getClassName());
@@ -43,9 +42,8 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 	}
 
 	@Override
-	public Object objectFromBuffer(Object in, RetrievedObjects retrievedObjs) throws StreamCorruptedException {
-		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();
-		
+	public Object objectFromBuffer(Object in, RetrievedObjects retrievedObjs) throws StreamCorruptedException {		
+		ClassNameSerializer cns = ValueSerializerRegistry.getClassNameSerializer();		
 		String className = cns.readClassName(in);
 		SpecialValueSerializer specialSerialier = ValueSerializerRegistry.getSpecialValueSerializer(className);
 		if (specialSerialier != null) {
@@ -55,6 +53,7 @@ public class DispatchingSerializerImpl implements DispatchingSerializer {
 			try {
 				clazz = Class.forName(className);
 			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 				throw new StreamCorruptedException();
 			}
 			
