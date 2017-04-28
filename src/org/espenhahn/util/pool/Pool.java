@@ -1,4 +1,4 @@
-package org.espenhahn.serializer.util.pool;
+package org.espenhahn.util.pool;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -11,7 +11,7 @@ import org.apache.commons.compress.utils.BitInputStream;
 import org.espenhahn.serializer.huffman.util.BitOutputStream;
 import org.espenhahn.serializer.huffman.util.ByteBufferInputStream;
 import org.espenhahn.serializer.huffman.util.ByteBufferOutputStream;
-import org.espenhahn.serializer.util.pool.Pool;
+import org.espenhahn.util.pool.Pool;
 
 public class HuffmanResult implements Serializable {
 	private static final long serialVersionUID = 7881273268974691493L;

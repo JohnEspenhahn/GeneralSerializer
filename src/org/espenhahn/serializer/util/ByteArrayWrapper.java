@@ -1,4 +1,6 @@
-package org.espenhahn.serializer.util.pool;
+package org.espenhahn.serializer.util;
+
+import org.espenhahn.util.pool.Sizable;
 
 public class ByteArrayWrapper implements Sizable {
 

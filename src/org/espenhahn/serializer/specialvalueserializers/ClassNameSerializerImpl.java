@@ -10,10 +10,10 @@ import java.nio.ByteOrder;
 
 import org.espenhahn.serializer.huffman.HuffmanResult;
 import org.espenhahn.serializer.huffman.util.ByteBufferInputStream;
-import org.espenhahn.serializer.util.pool.ByteArrayWrapper;
-import org.espenhahn.serializer.util.pool.ByteBufferWrapper;
-import org.espenhahn.serializer.util.pool.ObjectInstantiator;
-import org.espenhahn.serializer.util.pool.SortedPool;
+import org.espenhahn.serializer.util.ByteArrayWrapper;
+import org.espenhahn.serializer.util.ByteBufferWrapper;
+import org.espenhahn.util.pool.ObjectInstantiator;
+import org.espenhahn.util.pool.SortedPool;
 
 public class ClassNameSerializerImpl implements ClassNameSerializer {
 	private static SortedPool<ByteBufferWrapper> ByteBufferPool = new SortedPool<ByteBufferWrapper>(

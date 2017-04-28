@@ -1,4 +1,4 @@
-package org.espenhahn.serializer.util.pool;
+package org.espenhahn.util.pool;
 
 import java.util.Comparator;
 import java.util.TreeSet;
@@ -17,10 +17,12 @@ public class SortedPool<T extends Sizable> {
 	
 	private TreeSet<Sizable> pool;
 	private ObjectInstantiator<T> instantiator;
+	private int avaliable;
 	
 	public SortedPool(ObjectInstantiator<T> instantiator) {
 		this.pool = new TreeSet<Sizable>(COMPARATOR);
 		this.instantiator = instantiator;
+		this.avaliable = MAX_BUFFERS;
 	}
 
 	/**
@@ -38,6 +40,16 @@ public class SortedPool<T extends Sizable> {
 			
 		});
 		
+		while (avaliable < 0) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		avaliable -= 1;
+		
 		if (obj != null) 
 			return obj;
 		else 
@@ -50,19 +62,25 @@ public class SortedPool<T extends Sizable> {
 	 * @return True if the pool took it, false if the pool is full
 	 */
 	public synchronized boolean put(T obj) {
-		if (pool.size() >= MAX_BUFFERS) {
-			Sizable small = this.pool.first();
-			if (small.getSize() < obj.getSize()) {
-				pool.remove(small);
+		avaliable += 1;
+	
+		try {
+			if (pool.size() >= MAX_BUFFERS) {
+				Sizable small = this.pool.first();
+				if (small.getSize() < obj.getSize()) {
+					pool.remove(small);
+					pool.add(obj);
+					return true;
+				}
+			} else {
 				pool.add(obj);
 				return true;
 			}
-		} else {
-			pool.add(obj);
-			return true;
+			
+			return false;
+		} finally {
+			notify();
 		}
-		
-		return false;
 	}
 	
 }

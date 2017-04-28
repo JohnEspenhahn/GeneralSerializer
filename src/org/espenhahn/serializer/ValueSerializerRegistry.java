@@ -42,12 +42,12 @@ public class ValueSerializerRegistry {
 	private static ClassNameSerializer classNameSerializer = new ClassNameSerializerImpl();
 	static {
 		// Run HuffmanBuilder then uncomment this to enable class name compression for BinarySerialization
-		try {
-			classNameSerializer = new ClassNameSerializerImpl(new File("huffman.dat"));
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(4);
-		}
+//		try {
+//			classNameSerializer = new ClassNameSerializerImpl(new File("huffman.dat"));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			System.exit(4);
+//		}
 	}
 	
 	private static Map<Class<?>, ValueSerializer> serializers = new HashMap<Class<?>, ValueSerializer>();
@@ -92,10 +92,11 @@ public class ValueSerializerRegistry {
 	}
 	
 	public static void registerDeserializingClass(Class<?> foundClass, Class<?> targetClass) {
-		if (!foundClass.isAssignableFrom(targetClass)) throw new IllegalArgumentException();
-		
 		ValueSerializer serializer = getValueSerializer(targetClass);
-		if (serializer == null) throw new IllegalArgumentException();
+		if (serializer == null) {
+			serializer = getTypeIndependentSerializer(targetClass);
+			if (serializer == null) throw new IllegalArgumentException();
+		}
 		
 		deserializingClass.put(foundClass, targetClass);
 		registerValueSerializer(foundClass, serializer);

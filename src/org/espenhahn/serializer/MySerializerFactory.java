@@ -18,8 +18,8 @@ public class MySerializerFactory implements SerializerFactory {
 			markInit();
 		}
 		
-		// return new BinarySerializerImpl();
-		return new TextualSerializerImpl();
+		return new BinarySerializerImpl();
+//		return new TextualSerializerImpl();
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.espenhahn.serializer.test;
 
 import java.io.NotSerializableException;
+import java.io.StreamCorruptedException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.espenhahn.serializer.BinarySerializerImpl;
 import org.espenhahn.serializer.TextualSerializerImpl;
@@ -27,6 +29,35 @@ public class ValueSerializersTest {
 	public static void init() {
 		ValueSerializerRegistry.initDefault();
 		s = new TextualSerializerImpl();
+	}
+	
+	@Test
+	public void alternateDeserialize() {
+		ArrayList<String> l1 = new ArrayList<String>();
+		l1.add("1");
+		l1.add("2");
+		l1.add("3");
+		
+		try {
+			System.out.println("Showing deserializtion to alternate class");
+			System.out.println(l1.getClass());
+			System.out.println(l1);
+			
+			ValueSerializerRegistry.registerDeserializingClass(ArrayList.class, Vector.class);
+			ByteBuffer bb = s.outputBufferFromObject(l1);
+			
+			
+			@SuppressWarnings("unchecked")
+			Vector<String> v1 = (Vector<String>) s.objectFromInputBuffer(bb);
+			System.out.println(v1.getClass());
+			System.out.println(v1);
+		} catch (NotSerializableException e) {
+			e.printStackTrace();
+		} catch (StreamCorruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Done deserializing to alternate class");
 	}
 	
 	@Test
@@ -172,6 +203,8 @@ public class ValueSerializersTest {
 		
 		Object obj = new TestObject("test1", 10);
 		assertArraySavesEquals(new Object[] { obj, 1, obj, null, obj, "test" });
+		
+		assertArraySavesEquals(new Object[] { "string" });
 	}
 	
 	Object apply(Object obj) {

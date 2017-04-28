@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 
-import org.espenhahn.serializer.util.pool.ByteArrayWrapper;
-import org.espenhahn.serializer.util.pool.ObjectInstantiator;
-import org.espenhahn.serializer.util.pool.Pool;
-import org.espenhahn.serializer.util.pool.SortedPool;
+import org.espenhahn.serializer.util.ByteArrayWrapper;
+import org.espenhahn.util.pool.ObjectInstantiator;
+import org.espenhahn.util.pool.Pool;
+import org.espenhahn.util.pool.SortedPool;
 
 public class StaticStringSerializer {
 	public static final char SEPERATOR = ':';
